@@ -100,9 +100,9 @@
                     </div>
                 </div>
                 <div class="group-box">
-                    <div class="group-title">全域控制</div>
-                    <button id="pause-btn-admin" class="btn" style="width:100%; height:70px; font-size:20px;" onclick="window.dbTogglePause()">⏸ 啟動全體凍結</button>
-                    <button class="btn" style="background:var(--red); width:100%; margin-top:20px;" onclick="window.dbReset()">🧨 數據大清洗 (重新生成 50 格結構)</button>
+                    <div class="group-title">課堂進度重設</div>
+                    <p style="font-size: 14px; color: #aaa;">※ 此按鈕僅會將玩家位置歸零、題號回歸 1，不會刪除您的題庫內容。</p>
+                    <button class="btn" style="background:var(--red); width:100%; margin-top:10px;" onclick="window.dbSoftReset()">🧨 清空玩家位置 (重開新局)</button>
                 </div>
             </div>
 
@@ -123,7 +123,7 @@
                 <button id="btn-stay" class="btn" style="background:#64748b; width:170px; height:85px; font-size:20px;" onclick="window.dbMove(0)">留在原地</button>
                 <button id="btn-forward" class="btn" style="background:var(--green); width:170px; height:85px; font-size:20px;" onclick="window.dbMove(1)">向前一步 ▶</button>
             </div>
-            <button id="btn-undo" class="btn" style="background:#334155; width:80%; margin-top:15px; display:none;" onclick="window.dbUndo()">↺ 按錯了？重新選擇</button>
+            <button id="btn-undo" class="btn" style="background:#334155; width:80%; margin-top:15px; display:none;" onclick="window.dbUndo()">↺ 按錯了？本題重新選</button>
             <p id="move-status-msg" style="margin-top:15px; color:var(--gold); font-weight:bold; font-size:18px;"></p>
         </div>
     </div>
@@ -131,7 +131,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+    import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDDyO58BVHMHr7hJIIchVDlq5uD91D5W0o",
@@ -145,13 +145,12 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, 'equity-game-v10-final');
+    const gameRef = ref(db, 'equity-game-v11-final');
 
-    let myUID = localStorage.getItem('equity_v10_final_uid');
+    let myUID = localStorage.getItem('equity_v11_uid');
     let myRole = null; 
     let serverData = { q: 1, isRevealed: false, status: 'running', players: {}, questionsGroup: [], configChars: [] };
 
-    // --- 全域函數掛載 ---
     window.showPage = (id) => {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -174,25 +173,10 @@
         } else { alert('驗證失敗'); }
     };
 
+    // --- 管理：儲存題庫與角色 ---
     window.updateQuestionText = (gIdx, iIdx) => {
         const val = document.getElementById(`q-input-${gIdx}-${iIdx}`).value;
-        set(ref(db, `equity-game-v10-final/questionsGroup/${gIdx}/items/${iIdx}`), val)
-        .then(() => alert(`第 ${gIdx+1} 組第 ${iIdx+1} 題已儲存雲端`));
-    };
-
-    window.addCharacter = () => {
-        const nextIdx = serverData.configChars.length;
-        const col = "hsl(" + (Math.random()*360) + ", 70%, 50%)";
-        set(ref(db, `equity-game-v10-final/configChars/${nextIdx}`), {
-            name: "新角色", color: col, weekday: "平日情境...", weekend: "假日情境..."
-        });
-    };
-
-    window.removeCharacter = (idx) => {
-        if(!confirm("確定刪除？")) return;
-        const chars = [...serverData.configChars];
-        chars.splice(idx, 1);
-        set(ref(db, `equity-game-v10-final/configChars`), chars);
+        set(ref(db, `equity-game-v11-final/questionsGroup/${gIdx}/items/${iIdx}`), val).then(() => alert("題目已永久儲存"));
     };
 
     window.updateCharConfig = (idx) => {
@@ -202,28 +186,66 @@
             weekend: document.getElementById(`c-we-${idx}`).value,
             color: serverData.configChars[idx].color
         };
-        set(ref(db, `equity-game-v10-final/configChars/${idx}`), data).then(() => alert("角色資訊已更新"));
+        set(ref(db, `equity-game-v11-final/configChars/${idx}`), data).then(() => alert("角色身分已永久儲存"));
     };
 
-    // --- 遊戲邏輯 ---
-    window.joinSimMode = (idx) => {
-        const char = serverData.configChars[idx];
-        setupPlayer(char.name, char.color, "sim_" + idx);
+    window.addCharacter = () => {
+        const nextIdx = serverData.configChars.length;
+        const col = "hsl(" + (Math.random()*360) + ", 70%, 50%)";
+        set(ref(db, `equity-game-v11-final/configChars/${nextIdx}`), { name: "新角色", color: col, weekday: "", weekend: "" });
     };
 
+    window.removeCharacter = (idx) => {
+        if(!confirm("確定刪除？")) return;
+        const chars = [...serverData.configChars];
+        chars.splice(idx, 1);
+        set(ref(db, `equity-game-v11-final/configChars`), chars);
+    };
+
+    // --- 管理：大清洗 (不刪題目，只歸零位置) ---
+    window.dbSoftReset = () => {
+        if(!confirm("這將會移除所有玩家位置並回到第一題。您的題庫內容將會被保留，確定嗎？")) return;
+        
+        // 分別更新需要歸零的欄位
+        update(gameRef, {
+            q: 1,
+            isRevealed: false,
+            status: 'running'
+        });
+        remove(ref(db, 'equity-game-v11-final/players')).then(() => {
+            alert("進度已歸零！您可以開始新的班級活動。");
+        });
+    };
+
+    // --- 初始化結構 (僅限資料庫完全為空時執行一次) ---
+    async function initDatabaseStructure() {
+        const snap = await get(gameRef);
+        if(!snap.exists()) {
+            const titles = ["第一組：家庭與經濟資源（先天物質特權）","第二組：社會資本與家庭後援（人際支持特權）","第三組：數位落差與地理位置（資訊獲取特權）","第四組：自主學習與求知行為（後天內在動能）","第五組：韌性、責任與實踐力（持續前進的關鍵）"];
+            const newGroups = titles.map(title => ({ title: title, items: Array(10).fill("點擊編輯題目內容...") }));
+            set(gameRef, { 
+                q: 1, isRevealed: false, status: 'running', players: {}, questionsGroup: newGroups,
+                configChars: [{name: "達嗨", color: "#3b82f6", weekday: "", weekend: ""},{name: "維恩", color: "#fbbf24", weekday: "", weekend: ""}]
+            });
+        }
+    }
+    initDatabaseStructure();
+
+    // --- 遊戲同步邏輯 ---
+    window.joinSimMode = (idx) => setupPlayer(serverData.configChars[idx].name, serverData.configChars[idx].color, "sim_" + idx);
     window.joinRealMode = () => {
         if(myUID && myUID.startsWith('real_')) setupPlayer(null, null, myUID);
         else {
-            const currentCount = Object.keys(serverData.players || {}).filter(k => k.startsWith('real_')).length;
-            setupPlayer("Player " + (currentCount + 1), "#94a3b8", "real_" + Math.random().toString(36).substr(2, 5));
+            const count = Object.keys(serverData.players || {}).filter(k => k.startsWith('real_')).length;
+            setupPlayer("Player " + (count + 1), "#94a3b8", "real_" + Math.random().toString(36).substr(2, 5));
         }
-    }
+    };
 
     function setupPlayer(name, color, uid) {
-        myUID = uid; localStorage.setItem('equity_v10_final_uid', uid); myRole = 'student';
-        get(ref(db, `equity-game-v10-final/players/${uid}`)).then((snap) => {
+        myUID = uid; localStorage.setItem('equity_v11_uid', uid); myRole = 'student';
+        get(ref(db, `equity-game-v11-final/players/${uid}`)).then((snap) => {
             const d = snap.val();
-            update(ref(db, `equity-game-v10-final/players/${uid}`), { 
+            update(ref(db, `equity-game-v11-final/players/${uid}`), { 
                 name: d?.name || name, color: d?.color || color, 
                 pos: d?.pos || 0, startPosOfQ: d?.pos || 0, lastMovedQ: d?.lastMovedQ || 0 
             });
@@ -235,120 +257,61 @@
 
     window.dbChangeQ = (dir) => {
         const nextQ = serverData.q + dir;
-        const totalQs = 50; // 固定總數
-        if(nextQ < 1 || nextQ > totalQs) return;
+        if(nextQ < 1 || nextQ > 50) return;
         const updates = { q: nextQ, isRevealed: false };
         for(let uid in serverData.players) { updates[`players/${uid}/startPosOfQ`] = serverData.players[uid].pos; }
         update(gameRef, updates);
     };
 
-    window.dbToggleReveal = (show) => set(ref(db, 'equity-game-v10-final/isRevealed'), show);
-    window.dbTogglePause = () => set(ref(db, 'equity-game-v10-final/status'), serverData.status === 'running' ? 'paused' : 'running');
-
-    window.dbReset = () => {
-        if(!confirm("確定要進行數據大清洗？這將建立固定的 50 格佈題空間。")) return;
-        const titles = [
-            "第一組：家庭與經濟資源（先天物質特權）",
-            "第二組：社會資本與家庭後援（人際支持特權）",
-            "第三組：數位落差與地理位置（資訊獲取特權）",
-            "第四組：自主學習與求知行為（後天內在動能）",
-            "第五組：韌性、責任與實踐力（持續前進的關鍵）"
-        ];
-        const newGroups = titles.map(title => ({
-            title: title,
-            items: Array(10).fill("尚未編輯題目內容...")
-        }));
-        
-        set(gameRef, { 
-            q: 1, isRevealed: false, status: 'running', players: {}, questionsGroup: newGroups,
-            configChars: [
-                {name: "達嗨", color: "#3b82f6", weekday: "平日情境...", weekend: "假日情境..."},
-                {name: "維恩", color: "#fbbf24", weekday: "平日情境...", weekend: "假日情境..."},
-                {name: "小明", color: "#f472b6", weekday: "平日情境...", weekend: "假日情境..."},
-                {name: "小晴", color: "#fb923c", weekday: "平日情境...", weekend: "假日情境..."},
-                {name: "阿諾", color: "#a78bfa", weekday: "平日情境...", weekend: "假日情境..."}
-            ]
-        }).then(() => alert("初始化成功！請前往題庫編輯。"));
-    };
-
+    window.dbToggleReveal = (show) => set(ref(db, 'equity-game-v11-final/isRevealed'), show);
+    window.dbTogglePause = () => set(ref(db, 'equity-game-v11-final/status'), serverData.status === 'running' ? 'paused' : 'running');
     window.dbMove = (dir) => {
         const p = serverData.players[myUID];
         if(!p || serverData.status === 'paused') return;
-        update(ref(db, `equity-game-v10-final/players/${myUID}`), { pos: Math.max(0, p.startPosOfQ + dir), lastMovedQ: serverData.q });
+        update(ref(db, `equity-game-v11-final/players/${myUID}`), { pos: Math.max(0, p.startPosOfQ + dir), lastMovedQ: serverData.q });
     };
-
-    window.dbUndo = () => {
-        const p = serverData.players[myUID];
-        update(ref(db, `equity-game-v10-final/players/${myUID}`), { pos: p.startPosOfQ, lastMovedQ: 0 });
-    };
+    window.dbUndo = () => update(ref(db, `equity-game-v11-final/players/${myUID}`), { pos: serverData.players[myUID].startPosOfQ, lastMovedQ: 0 });
 
     // --- 同步與渲染 ---
     onValue(gameRef, (snap) => {
         const d = snap.val(); if(!d) return;
         const oldC = serverData.configChars.length;
-        serverData = d;
-        serverData.players = d.players || {};
-        serverData.questionsGroup = d.questionsGroup || [];
-        serverData.configChars = d.configChars || [];
+        serverData = d; serverData.players = d.players || {}; serverData.questionsGroup = d.questionsGroup || []; serverData.configChars = d.configChars || [];
 
         document.getElementById('display-q-num').innerText = d.q;
         document.getElementById('admin-q-num').innerText = d.q;
         
-        // 展平所有題目進行顯示
-        let flattened = [];
-        serverData.questionsGroup.forEach(g => { if(g.items) flattened = flattened.concat(g.items); });
-
+        let flattened = []; serverData.questionsGroup.forEach(g => { if(g.items) flattened = flattened.concat(g.items); });
         const qBox = document.getElementById('current-q-text');
-        if(d.isRevealed) {
-            qBox.innerText = flattened[d.q - 1] || "題目尚未編輯...";
-            qBox.classList.remove('q-hidden');
-        } else {
-            qBox.innerText = "🔒 聽取導師口述佈題揭曉中...";
-            qBox.classList.add('q-hidden');
-        }
+        if(d.isRevealed) { qBox.innerText = flattened[d.q - 1] || "尚未編輯..."; qBox.classList.remove('q-hidden'); }
+        else { qBox.innerText = "🔒 聽取導師佈題揭曉中..."; qBox.classList.add('q-hidden'); }
 
         if(myRole === 'teacher') {
-            const pBtn = document.getElementById('pause-btn-admin');
-            const isPaused = d.status === 'paused';
-            pBtn.innerText = isPaused ? "▶ 恢復社會運作 (Resume)" : "⏸ 啟動全體凍結 (Freeze)";
-            pBtn.style.background = isPaused ? "var(--green)" : "#f59e0b";
-            
-            const rBtn = document.getElementById('reveal-btn-admin');
-            const hBtn = document.getElementById('hide-btn-admin');
-            rBtn.style.border = d.isRevealed ? "4px solid white" : "none";
-            hBtn.style.border = !d.isRevealed ? "4px solid white" : "none";
+            const isP = d.status === 'paused';
+            document.getElementById('pause-btn-admin').innerText = isP ? "▶ 恢復社會運作" : "⏸ 啟動全體凍結";
+            document.getElementById('pause-btn-admin').style.background = isP ? "var(--green)" : "#f59e0b";
+            document.getElementById('reveal-btn-admin').style.border = d.isRevealed ? "4px solid white" : "none";
+            document.getElementById('hide-btn-admin').style.border = !d.isRevealed ? "4px solid white" : "none";
 
-            // 題庫編輯區：僅在初始化或結構變動時生成
             const qContainer = document.getElementById('q-groups-container');
             if(qContainer.innerHTML === "") {
                 serverData.questionsGroup.forEach((g, gIdx) => {
-                    let html = `<div class="group-box">
-                        <div class="group-title">${g.title}</div>
-                        <div class="editor-grid">`;
+                    let html = `<div class="group-box"><div class="group-title">${g.title}</div><div class="editor-grid">`;
                     g.items.forEach((item, iIdx) => {
-                        html += `<div class="q-item">
-                            <span style="font-size:12px; color:var(--gold); font-weight:bold;">#${gIdx*10+iIdx+1}</span>
+                        html += `<div class="q-item"><span style="font-size:12px;color:var(--gold);">#${gIdx*10+iIdx+1}</span>
                             <input id="q-input-${gIdx}-${iIdx}" value="${item}">
-                            <button class="btn" style="background:var(--blue); padding:5px 12px; font-size:12px;" onclick="window.updateQuestionText(${gIdx}, ${iIdx})">存</button>
-                        </div>`;
+                            <button class="btn" style="background:var(--blue);padding:5px 12px;font-size:12px;" onclick="window.updateQuestionText(${gIdx}, ${iIdx})">存</button></div>`;
                     });
-                    html += `</div></div>`;
-                    qContainer.innerHTML += html;
+                    html += `</div></div>`; qContainer.innerHTML += html;
                 });
             }
-
-            // 角色編輯器
             const cContainer = document.getElementById('char-editor-container');
             if(cContainer.innerHTML === "" || oldC !== serverData.configChars.length) {
                 cContainer.innerHTML = "";
                 serverData.configChars.forEach((c, i) => {
-                    cContainer.innerHTML += `<div class="group-box">
-                        <div class="group-title">角色 #${i+1} <button class="btn" style="background:var(--red); padding:5px 10px; font-size:12px;" onclick="window.removeCharacter(${i})">刪除</button></div>
-                        名稱：<input id="c-n-${i}" value="${c.name}">
-                        平日：<textarea id="c-wd-${i}" rows="2">${c.weekday || ''}</textarea>
-                        假日：<textarea id="c-we-${i}" rows="2">${c.weekend || ''}</textarea>
-                        <button class="btn" style="background:var(--blue); width:100%;" onclick="window.updateCharConfig(${i})">儲存</button>
-                    </div>`;
+                    cContainer.innerHTML += `<div class="group-box"><div class="group-title">角色 #${i+1} <button class="btn" style="background:var(--red);padding:5px 10px;font-size:12px;" onclick="window.removeCharacter(${i})">刪除</button></div>
+                        名稱：<input id="c-n-${i}" value="${c.name}">平日：<textarea id="c-wd-${i}" rows="2">${c.weekday || ''}</textarea>假日：<textarea id="c-we-${i}" rows="2">${c.weekend || ''}</textarea>
+                        <button class="btn" style="background:var(--blue);width:100%;" onclick="window.updateCharConfig(${i})">儲存</button></div>`;
                 });
             }
         }
@@ -357,22 +320,16 @@
         if(simList.innerHTML === "" || oldC !== serverData.configChars.length) {
             simList.innerHTML = "";
             serverData.configChars.forEach((c, i) => {
-                simList.innerHTML += `<div class="char-card" onclick="window.joinSimMode(${i})">
-                    <h3 style="margin:0; color:var(--gold); text-align:center;">${c.name}</h3>
-                    <div class="char-tag">🗓️ 平日</div><div style="font-size:13px; color:#ccc;">${c.weekday}</div>
-                    <div class="char-tag">⛱️ 假日</div><div style="font-size:13px; color:#ccc;">${c.weekend}</div>
-                </div>`;
+                simList.innerHTML += `<div class="char-card" onclick="window.joinSimMode(${i})"><h3 style="margin:0;color:var(--gold);">${c.name}</h3><div class="char-tag">🗓️ 平日</div><div style="font-size:13px;color:#ccc;">${c.weekday}</div><div class="char-tag">⛱️ 假日</div><div style="font-size:13px;color:#ccc;">${c.weekend}</div></div>`;
             });
         }
 
         if(myRole === 'student') {
-            const p = serverData.players[myUID];
-            const hasMoved = p && p.lastMovedQ === serverData.q;
-            const isPaused = serverData.status === 'paused';
-            document.getElementById('move-btns-group').style.display = isPaused ? "none" : "flex";
-            document.getElementById('lock-msg').style.display = isPaused ? "block" : "none";
-            document.getElementById('btn-undo').style.display = (hasMoved && !isPaused) ? "inline-block" : "none";
-            document.getElementById('move-status-msg').innerText = isPaused ? "⏸ 命運凍結中" : (hasMoved ? "✅ 已完成抉擇" : (d.isRevealed ? "⚡ 請做出選擇" : "💭 聽取導師口述題目..."));
+            const p = serverData.players[myUID]; const hasMoved = p && p.lastMovedQ === serverData.q; const isP = serverData.status === 'paused';
+            document.getElementById('move-btns-group').style.display = isP ? "none" : "flex";
+            document.getElementById('lock-msg').style.display = isP ? "block" : "none";
+            document.getElementById('btn-undo').style.display = (hasMoved && !isP) ? "inline-block" : "none";
+            document.getElementById('move-status-msg').innerText = isP ? "⏸ 命運凍結中" : (hasMoved ? "✅ 已完成本題抉擇" : (d.isRevealed ? "⚡ 請做出選擇" : "💭 聽取導師口述題目..."));
             document.getElementById('btn-stay').style.display = hasMoved ? "none" : "inline-block";
             document.getElementById('btn-back').style.display = hasMoved ? "none" : "inline-block";
             document.getElementById('btn-forward').style.display = hasMoved ? "none" : "inline-block";
@@ -384,22 +341,15 @@
     function render() {
         ctx.clearRect(0,0,1000,420);
         const sx = 150; const sd = 20;
-        ctx.strokeStyle = "rgba(255,255,255,0.05)"; 
-        for(let i=0; i<15; i++) ctx.strokeRect(20, 50+(i*25), 960, 25);
-        ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.moveTo(sx, 40); ctx.lineTo(sx, 410); ctx.stroke();
+        ctx.strokeStyle = "rgba(255,255,255,0.05)"; for(let i=0; i<15; i++) ctx.strokeRect(20, 50+(i*25), 960, 25);
+        ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(sx, 40); ctx.lineTo(sx, 410); ctx.stroke();
         ctx.fillStyle = "#22c55e"; ctx.font = "bold 14px sans-serif"; ctx.fillText("理想起跑線", sx-35, 30);
-
         Object.keys(serverData.players).forEach((uid, i) => {
-            const p = serverData.players[uid];
-            if(!localX[uid]) localX[uid] = sx;
+            const p = serverData.players[uid]; if(!localX[uid]) localX[uid] = sx;
             localX[uid] += (sx + (p.pos*sd) - localX[uid]) * 0.1;
-            const y = 65 + (i*25);
-            ctx.beginPath(); ctx.arc(localX[uid], y, 10, 0, Math.PI*2);
-            ctx.fillStyle = p.color; ctx.fill();
+            const y = 65 + (i*25); ctx.beginPath(); ctx.arc(localX[uid], y, 10, 0, Math.PI*2); ctx.fillStyle = p.color; ctx.fill();
             if(uid === myUID) { ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke(); }
-            ctx.fillStyle="#cbd5e1"; ctx.textAlign="left"; ctx.font="10px sans-serif";
-            ctx.fillText(p.name, localX[uid]+15, y+4);
+            ctx.fillStyle="#cbd5e1"; ctx.textAlign="left"; ctx.font="10px sans-serif"; ctx.fillText(p.name, localX[uid]+15, y+4);
         });
         requestAnimationFrame(render);
     }
