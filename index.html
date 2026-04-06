@@ -7,7 +7,7 @@
     <style>
         :root { 
             --dark: #121212; --gold: #ffd700; --blue: #3182ce; 
-            --red: #e53e3e; --green: #38a169; --track: #8b4513;
+            --red: #e53e3e; --green: #38a169;
         }
         body { 
             font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; 
@@ -57,10 +57,10 @@
         <h1>平全不平權？</h1>
         <div class="slogan">「起跑線是可以移動的，只要你的背景夠重。」</div>
         <div style="display:flex; flex-wrap: wrap; justify-content:center; gap: 20px;">
-            <button class="btn btn-mode-1" onclick="showPage('page-sim-select')">🎭 投胎模擬器</button>
-            <button class="btn btn-mode-2" onclick="joinRealMode()">🏗️ 生存大亂鬥</button>
+            <button class="btn btn-mode-1" onclick="window.showPage('page-sim-select')">🎭 投胎模擬器</button>
+            <button class="btn btn-mode-2" onclick="window.joinRealMode()">🏗️ 生存大亂鬥</button>
         </div>
-        <button class="btn btn-admin" style="margin-top: 40px;" onclick="showPage('page-login')">🔑 進入命運後台</button>
+        <button class="btn btn-admin" style="margin-top: 40px;" onclick="window.showPage('page-login')">🔑 進入命運後台</button>
     </div>
 
     <div id="page-login" class="page">
@@ -68,15 +68,15 @@
         <input type="text" id="admin-user" placeholder="帳號 (admin)">
         <input type="password" id="admin-pass" placeholder="密碼 (2803)">
         <div>
-            <button class="btn" style="background:var(--blue)" onclick="verifyLogin()">開始主宰</button>
-            <button class="btn" style="background:#555" onclick="showPage('page-home')">返回</button>
+            <button class="btn" style="background:var(--blue)" onclick="window.verifyLogin()">開始主宰</button>
+            <button class="btn" style="background:#555" onclick="window.showPage('page-home')">返回</button>
         </div>
     </div>
 
     <div id="page-sim-select" class="page">
         <h2>選擇你的「出生禮包」</h2>
         <div class="char-grid" id="sim-char-list"></div>
-        <button class="btn" style="background:#555; margin-top:30px" onclick="showPage('page-home')">返回</button>
+        <button class="btn" style="background:#555; margin-top:30px" onclick="window.showPage('page-home')">返回</button>
     </div>
 
     <div id="page-game" class="page">
@@ -88,18 +88,18 @@
         <canvas id="mainCanvas" width="1000" height="420"></canvas>
 
         <div id="teacher-controls" class="teacher-panel" style="display:none">
-            <button class="btn" style="background:var(--gold); color: #000; width: 100%;" onclick="dbNextQ()">發布下一道難題 ➔</button>
+            <button class="btn" style="background:var(--gold); color: #000; width: 100%;" onclick="window.dbNextQ()">發布下一道難題 ➔</button>
             <div style="display:flex; gap:10px; margin-top:10px;">
-                <button id="pause-btn" class="btn" style="background:#ed8936; flex:1" onclick="dbTogglePause()">⏸ 凍結時間</button>
-                <button class="btn" style="background:var(--red); flex:1" onclick="dbReset()">🧨 數據重置</button>
+                <button id="pause-btn" class="btn" style="background:#ed8936; flex:1" onclick="window.dbTogglePause()">⏸ 凍結時間</button>
+                <button class="btn" style="background:var(--red); flex:1" onclick="window.dbReset()">🧨 數據重置</button>
             </div>
         </div>
 
         <div id="student-controls" style="margin-top:20px; text-align: center;">
             <p id="lock-msg" style="color:var(--red); font-size: 20px; font-weight:900; display:none; background:white; padding:10px; border-radius:10px;">⚠️ 命運已被導師凍結 ⚠️</p>
             <div id="move-btns">
-                <button class="btn btn-action" style="background:var(--red)" onclick="dbMove(-1)">◀ 受挫</button>
-                <button class="btn btn-action" style="background:var(--green)" onclick="dbMove(1)">努力 ▶</button>
+                <button class="btn btn-action" style="background:var(--red)" onclick="window.dbMove(-1)">◀ 受挫</button>
+                <button class="btn btn-action" style="background:var(--green)" onclick="window.dbMove(1)">努力 ▶</button>
             </div>
         </div>
     </div>
@@ -109,7 +109,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-    // Firebase 配置
     const firebaseConfig = {
       apiKey: "AIzaSyDDyO58BVHMHr7hJIIchVDlq5uD91D5W0o",
       authDomain: "equity-game-a26fc.firebaseapp.com",
@@ -122,7 +121,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, 'equity-game-vfinal');
+    const gameRef = ref(db, 'equity-game-production');
 
     const simCharacters = [
         { name: "達嗨", color: "#3182ce", desc: "布農部落的晨光..." },
@@ -135,11 +134,11 @@
     let myRole = null; let myUID = null; let myCharName = "";
     let serverData = { q: 0, status: 'running', players: {} };
 
-    // --- 將函數掛載到 window 以解決 onclick 找不到函數的問題 ---
-    
+    // --- 關鍵修正：將函數顯式掛載到 window 物件 ---
     window.showPage = (id) => {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+        const target = document.getElementById(id);
+        if (target) target.classList.add('active');
     };
 
     window.verifyLogin = () => {
@@ -151,44 +150,40 @@
             document.getElementById('student-controls').style.display = 'none';
             document.getElementById('player-tag').innerText = "👨‍🏫 管理員後台";
             window.showPage('page-game');
-        } else { alert('帳號或密碼錯誤。'); }
+        } else { alert('驗證失敗。'); }
     };
 
     window.joinSimMode = (idx) => {
         myRole = 'student'; myUID = "sim_" + idx; myCharName = simCharacters[idx].name;
         updateUI(simCharacters[idx].color, myCharName);
-        update(ref(db, `equity-game-vfinal/players/${myUID}`), { name: myCharName, color: simCharacters[idx].color, pos: 0 });
+        update(ref(db, `equity-game-production/players/${myUID}`), { name: myCharName, color: simCharacters[idx].color, pos: 0 });
         window.showPage('page-game');
     };
 
     window.joinRealMode = () => {
         myRole = 'student'; myUID = "real_" + Math.random().toString(36).substr(2, 5);
-        onValue(ref(db, 'equity-game-vfinal/players'), (snap) => {
+        onValue(ref(db, 'equity-game-production/players'), (snap) => {
             if(!myCharName) {
                 const count = snap.exists() ? Object.keys(snap.val()).length + 1 : 1;
                 myCharName = "P" + count;
                 const col = "hsl(" + (Math.random()*360) + ", 70%, 60%)";
                 updateUI(col, myCharName);
-                update(ref(db, `equity-game-vfinal/players/${myUID}`), { name: myCharName, color: col, pos: 0 });
+                update(ref(db, `equity-game-production/players/${myUID}`), { name: myCharName, color: col, pos: 0 });
                 window.showPage('page-game');
             }
         }, { onlyOnce: true });
     };
 
-    window.dbNextQ = () => set(ref(db, 'equity-game-vfinal/q'), serverData.q + 1);
-    
-    window.dbTogglePause = () => set(ref(db, 'equity-game-vfinal/status'), serverData.status === 'running' ? 'paused' : 'running');
-    
+    window.dbNextQ = () => set(ref(db, 'equity-game-production/q'), serverData.q + 1);
+    window.dbTogglePause = () => set(ref(db, 'equity-game-production/status'), serverData.status === 'running' ? 'paused' : 'running');
     window.dbMove = (dir) => {
         if(serverData.status === 'paused') return;
         const cp = (serverData.players[myUID]?.pos) || 0;
-        set(ref(db, `equity-game-vfinal/players/${myUID}/pos`), Math.max(0, cp + dir));
+        set(ref(db, `equity-game-production/players/${myUID}/pos`), Math.max(0, cp + dir));
     };
-    
-    window.dbReset = () => { if(confirm("確定清空所有數據？")) set(gameRef, { q: 0, status: 'running', players: {} }); };
+    window.dbReset = () => { if(confirm("確定重置數據？")) set(gameRef, { q: 0, status: 'running', players: {} }); };
 
-    // --- 初始化界面與渲染 ---
-
+    // --- 界面渲染與初始化 ---
     function updateUI(c, n) { 
         const t = document.getElementById('player-tag'); 
         t.innerText = n; t.style.background = c; t.style.color = "#fff"; 
@@ -198,7 +193,7 @@
     simCharacters.forEach((c, idx) => {
         const card = document.createElement('div');
         card.className = 'char-card';
-        card.innerHTML = `<div class="joke-label">特權+1</div><b style="color:${c.color}">${c.name}</b><div style="font-size:11px; color:#aaa; margin-top:5px;">${c.desc}</div>`;
+        card.innerHTML = `<div class="joke-label">階級+1</div><b style="color:${c.color}">${c.name}</b><div style="font-size:11px; color:#aaa; margin-top:5px;">${c.desc}</div>`;
         card.onclick = () => window.joinSimMode(idx);
         charListDiv.appendChild(card);
     });
@@ -217,37 +212,28 @@
 
     const canvas = document.getElementById('mainCanvas'); const ctx = canvas.getContext('2d');
     let localX = {};
-
     function render() {
         ctx.clearRect(0,0,1000,420);
         const sx = 150; const sd = 20;
 
-        // 跑道線
-        ctx.strokeStyle = "rgba(255,255,255,0.1)"; ctx.lineWidth = 1;
-        for(let i=0; i<10; i++) { ctx.strokeRect(20, 50+(i*40), 960, 40); }
-
-        // 起跑基準線 (綠色)
+        // 起跑線
         ctx.strokeStyle = "#00ff00"; ctx.lineWidth = 4;
         ctx.beginPath(); ctx.moveTo(sx, 40); ctx.lineTo(sx, 400); ctx.stroke();
-        ctx.fillStyle = "#00ff00"; ctx.font = "bold 14px sans-serif";
-        ctx.fillText("理想起跑線", sx-35, 35);
+        ctx.fillStyle = "#00ff00"; ctx.font = "bold 14px sans-serif"; ctx.fillText("理想起跑線", sx-35, 35);
 
-        // 終點線 (金色)
+        // 終點
         ctx.strokeStyle = "#ffd700"; ctx.setLineDash([5,5]);
         ctx.beginPath(); ctx.moveTo(sx+(40*sd), 40); ctx.lineTo(sx+(40*sd), 400); ctx.stroke();
-        ctx.setLineDash([]); ctx.fillStyle = "#ffd700";
-        ctx.fillText("成功目標", sx+(40*sd)-30, 35);
+        ctx.setLineDash([]); ctx.fillStyle = "#ffd700"; ctx.fillText("成功目標", sx+(40*sd)-30, 35);
 
         Object.keys(serverData.players).forEach((uid, i) => {
             const p = serverData.players[uid];
             if(!localX[uid]) localX[uid] = sx;
             localX[uid] += (sx + (p.pos*sd) - localX[uid]) * 0.1;
-            const y = 70 + (i*40);
-            
+            const y = 70 + (i*45);
             ctx.beginPath(); ctx.arc(localX[uid], y, 16, 0, Math.PI*2);
             ctx.fillStyle = p.color; ctx.fill();
             if(uid === myUID) { ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke(); }
-            
             ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="bold 12px sans-serif";
             ctx.fillText(p.name, localX[uid], y-22);
         });
