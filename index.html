@@ -19,12 +19,11 @@
         .q-text { font-size: 26px; font-weight: bold; color: var(--gold); line-height: 1.6; }
         .q-hidden { color: #475569; font-style: italic; font-weight: normal; }
 
-        .btn { padding: 12px 24px; border-radius: 14px; border: none; font-weight: 900; cursor: pointer; transition: 0.2s; font-size: 15px; color: white; margin: 5px; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
-        .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
+        .btn { padding: 14px 28px; border-radius: 16px; border: none; font-weight: 900; cursor: pointer; transition: 0.2s; font-size: 16px; color: white; margin: 6px; box-shadow: 0 5px 0 rgba(0,0,0,0.3); }
+        .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
         
         .tab-menu { display: flex; gap: 8px; margin-bottom: 20px; width: 100%; border-bottom: 2px solid #334155; overflow-x: auto; padding-bottom: 5px; }
-        .tab-btn { background: none; border: none; color: #64748b; cursor: pointer; font-size: 17px; font-weight: bold; padding: 12px; white-space: nowrap; }
+        .tab-btn { background: none; border: none; color: #64748b; cursor: pointer; font-size: 18px; font-weight: bold; padding: 12px; white-space: nowrap; }
         .tab-btn.active { color: var(--gold); border-bottom: 4px solid var(--gold); }
         
         .admin-section { display: none; width: 100%; flex-direction: column; }
@@ -32,12 +31,13 @@
 
         .group-box { background: #334155; border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #475569; }
         .group-title { color: var(--gold); font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid #475569; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;}
-        .q-item { display: flex; gap: 10px; align-items: center; background: #0f172a; padding: 10px; border-radius: 10px; margin-bottom: 5px;}
+        .q-item { display: flex; gap: 10px; align-items: center; background: #0f172a; padding: 10px; border-radius: 10px; margin-bottom: 8px;}
         input, textarea { background: #1e293b; color: #fff; padding: 12px; border: 1px solid #475569; border-radius: 10px; width: 100%; box-sizing: border-box; font-size: 14px; }
         
         canvas { background: #1a1a1a; border-radius: 15px; width: 100%; border: 6px solid #334155; margin: 20px 0; }
         .char-card { background: #2d3748; border: 2px solid #475569; padding: 20px; border-radius: 15px; cursor: pointer; text-align: left; transition: 0.3s; height: 100%; }
         .char-tag { font-size: 12px; background: rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 5px; margin: 8px 0 3px 0; display: inline-block; color: var(--gold); }
+        .sticky-save { position: sticky; top: 0; background: #1e293b; padding: 15px; z-index: 100; border-bottom: 2px solid var(--gold); margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -50,27 +50,25 @@
             <button class="btn" style="background:var(--blue); width:320px; height:110px; font-size:22px;" onclick="window.showPage('page-sim-select')">🎭 命運劇本</button>
             <button class="btn" style="background:var(--green); width:320px; height:110px; font-size:22px;" onclick="window.joinRealMode()">🏗️ 生存大亂鬥</button>
         </div>
-        <button class="btn" style="background:#334155; font-size:12px; margin-top:50px; opacity:0.5" onclick="window.showPage('page-login')">⚙️ 進入命運後台</button>
+        <button class="btn" style="background:#334155; font-size:12px; margin-top:50px; opacity:0.5" onclick="window.showPage('page-login')">🛡️ 進入命運後台</button>
     </div>
 
     <div id="page-login" class="page">
         <h2>管理者驗證</h2>
         <input type="text" id="admin-user" placeholder="帳號">
         <input type="password" id="admin-pass" placeholder="密碼">
-        <button class="btn" style="background:var(--blue); width:300px" onclick="window.verifyLogin()">登入控制台</button>
-        <button class="btn" style="background:#475569; width:300px" onclick="window.showPage('page-home')">返回首頁</button>
+        <button class="btn" style="background:var(--blue); width:300px" onclick="window.verifyLogin()">登入</button>
+        <button class="btn" style="background:#475569; width:300px" onclick="window.showPage('page-home')">返回</button>
     </div>
 
     <div id="page-sim-select" class="page">
-        <h2>領取您的人生劇本</h2>
+        <h2>領取您的人生設定</h2>
         <div id="sim-char-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; width: 100%;"></div>
         <button class="btn" style="background:#475569; margin-top:30px" onclick="window.showPage('page-home')">返回首頁</button>
     </div>
 
     <div id="page-game" class="page">
-        <div class="q-display-board">
-            <div id="current-q-text" class="q-text q-hidden">🔒 聽取導師佈題揭曉中...</div>
-        </div>
+        <div class="q-display-board"><div id="current-q-text" class="q-text q-hidden">🔒 聽取導師佈題揭曉中...</div></div>
         <div style="display:flex; justify-content: space-between; width:100%; align-items:center;">
             <div style="font-size:26px; font-weight:900;">社會關卡：【<span id="display-q-num">1</span>】</div>
             <div id="player-tag" style="font-weight:bold; padding: 10px 20px; border-radius:12px; border: 2px solid white;">載入中...</div>
@@ -102,15 +100,20 @@
                     <div class="group-title">全體狀態控制</div>
                     <button id="pause-btn-admin" class="btn" style="width:100%; height:70px; font-size:20px; background:#f59e0b;" onclick="window.dbTogglePause()">⏸ 啟動全體凍結</button>
                     <button class="btn" style="background:var(--red); width:100%; margin-top:20px;" onclick="window.dbSoftReset()">🧨 清空玩家位置 (保留題庫)</button>
-                    <button class="btn" style="background:#444; width:100%; font-size:12px;" onclick="window.dbHardReset()">⚠️ 數據大清洗 (恢復預設題庫/角色)</button>
                 </div>
             </div>
 
             <div id="sec-q" class="admin-section">
-                <div id="q-groups-container" style="max-height: 550px; overflow-y: auto; width: 100%;"></div>
+                <div class="sticky-save">
+                    <button class="btn" style="background:var(--green); width:100%;" onclick="window.saveAllQuestions()">💾 一鍵儲存題庫改動</button>
+                </div>
+                <div id="q-groups-container"></div>
             </div>
 
             <div id="sec-c" class="admin-section">
+                <div class="sticky-save">
+                    <button class="btn" style="background:var(--blue); width:100%;" onclick="window.saveAllCharacters()">💾 一鍵儲存所有角色</button>
+                </div>
                 <button class="btn" style="background:var(--blue); margin-bottom:15px;" onclick="window.addCharacter()">➕ 新增模擬角色</button>
                 <div id="char-editor-container"></div>
             </div>
@@ -145,13 +148,13 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, 'equity-game-v12-kaohsiung');
+    const gameRef = ref(db, 'equity-game-v14-pro');
 
-    let myUID = localStorage.getItem('equity_v12_uid');
+    let myUID = localStorage.getItem('equity_v14_uid');
     let myRole = null; 
     let serverData = { q: 1, isRevealed: false, status: 'running', players: {}, questionsGroup: [], configChars: [] };
 
-    // --- 全域函數掛載 ---
+    // --- 全域函數 ---
     window.showPage = (id) => {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -162,6 +165,7 @@
         document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
         document.getElementById('tab-'+tab).classList.add('active');
         document.getElementById('sec-'+tab).classList.add('active');
+        if(tab === 'q' || tab === 'c') window.renderEditors(); 
     };
 
     window.verifyLogin = () => {
@@ -171,76 +175,113 @@
             document.getElementById('student-controls').style.display = 'none';
             document.getElementById('player-tag').innerText = "👨‍🏫 命運規劃師";
             window.showPage('page-game');
-            renderEditors(); // 強制渲染編輯器
+            window.renderEditors(); 
         } else { alert('驗證失敗'); }
     };
 
-    // --- 管理：凍結、題號、揭曉 ---
-    window.dbTogglePause = () => {
-        const nextStatus = serverData.status === 'running' ? 'paused' : 'running';
-        set(ref(db, 'equity-game-v12-kaohsiung/status'), nextStatus);
+    // --- 核心修復：強制渲染編輯器 ---
+    window.renderEditors = () => {
+        const qContainer = document.getElementById('q-groups-container');
+        qContainer.innerHTML = "";
+        const groupTitles = [
+            "第一組：家庭與經濟資源（先天物質特權）",
+            "第二組：社會資本與家庭後援（人際支持特權）",
+            "第三組：數位落差與地理位置（資訊獲取特權）",
+            "第四組：自主學習與求知行為（後天內在動能）",
+            "第五組：韌性、責任與實踐力（持續前進的關鍵）"
+        ];
+
+        serverData.questionsGroup.forEach((g, gIdx) => {
+            let html = `<div class="group-box"><div class="group-title">${groupTitles[gIdx] || g.title} <button class="btn" style="background:var(--blue); padding:5px 10px; font-size:12px;" onclick="window.addQuestionToGroup(${gIdx})">➕ 增題</button></div><div class="editor-grid">`;
+            if(g.items) {
+                g.items.forEach((item, iIdx) => {
+                    html += `<div class="q-item">
+                        <input class="q-input-group-${gIdx}" value="${item}">
+                        <button class="btn" style="background:var(--red); padding:5px 10px; font-size:12px;" onclick="window.removeQuestionFromGroup(${gIdx}, ${iIdx})">❌</button>
+                    </div>`;
+                });
+            }
+            html += `</div></div>`; qContainer.innerHTML += html;
+        });
+
+        const cContainer = document.getElementById('char-editor-container');
+        cContainer.innerHTML = "";
+        serverData.configChars.forEach((c, i) => {
+            cContainer.innerHTML += `<div class="group-box">
+                <div class="group-title">角色 #${i+1} <button class="btn" style="background:var(--red); padding:5px 10px; font-size:12px;" onclick="window.removeCharacter(${i})">刪除</button></div>
+                名稱：<input id="c-n-${i}" value="${c.name}">
+                平日情境：<textarea id="c-wd-${i}" rows="2">${c.weekday || ''}</textarea>
+                假日情境：<textarea id="c-we-${i}" rows="2">${c.weekend || ''}</textarea>
+            </div>`;
+        });
     };
 
+    // --- 編輯管理邏輯 ---
+    window.addQuestionToGroup = (gIdx) => {
+        if(!serverData.questionsGroup[gIdx].items) serverData.questionsGroup[gIdx].items = [];
+        serverData.questionsGroup[gIdx].items.push("新社會情境...");
+        window.renderEditors();
+    };
+
+    window.removeQuestionFromGroup = (gIdx, iIdx) => {
+        serverData.questionsGroup[gIdx].items.splice(iIdx, 1);
+        window.renderEditors();
+    };
+
+    window.addCharacter = () => {
+        const col = "hsl(" + (Math.random()*360) + ", 70%, 50%)";
+        serverData.configChars.push({ name: "新角色", color: col, weekday: "", weekend: "" });
+        window.renderEditors();
+    };
+
+    window.removeCharacter = (idx) => {
+        if(!confirm("確定刪除角色？")) return;
+        serverData.configChars.splice(idx, 1);
+        window.renderEditors();
+    };
+
+    window.saveAllQuestions = () => {
+        const newGroups = serverData.questionsGroup.map((group, gIdx) => {
+            const inputs = document.querySelectorAll(`.q-input-group-${gIdx}`);
+            const items = Array.from(inputs).map(input => input.value);
+            return { title: group.title, items: items };
+        });
+        set(ref(db, 'equity-game-v14-pro/questionsGroup'), newGroups).then(() => alert("✅ 題庫已存至雲端！"));
+    };
+
+    window.saveAllCharacters = () => {
+        const newChars = serverData.configChars.map((char, i) => {
+            return {
+                name: document.getElementById(`c-n-${i}`).value,
+                weekday: document.getElementById(`c-wd-${i}`).value,
+                weekend: document.getElementById(`c-we-${i}`).value,
+                color: char.color
+            };
+        });
+        set(ref(db, 'equity-game-v14-pro/configChars'), newChars).then(() => alert("✅ 角色劇本已存至雲端！"));
+    };
+
+    // --- 系統控制 ---
+    window.dbTogglePause = () => {
+        const nextStatus = serverData.status === 'running' ? 'paused' : 'running';
+        set(ref(db, 'equity-game-v14-pro/status'), nextStatus);
+    };
+    window.dbToggleReveal = (show) => set(ref(db, 'equity-game-v14-pro/isRevealed'), show);
     window.dbChangeQ = (dir) => {
+        let flattened = []; serverData.questionsGroup.forEach(g => { if(g.items) flattened = flattened.concat(g.items); });
         const nextQ = serverData.q + dir;
-        if(nextQ < 1 || nextQ > 50) return;
+        if(nextQ < 1 || nextQ > flattened.length) return;
         const updates = { q: nextQ, isRevealed: false };
         for(let uid in serverData.players) { updates[`players/${uid}/startPosOfQ`] = serverData.players[uid].pos; }
         update(gameRef, updates);
     };
-
-    window.dbToggleReveal = (show) => set(ref(db, 'equity-game-v12-kaohsiung/isRevealed'), show);
-
-    // --- 管理：儲存題庫與角色 ---
-    window.updateQuestionText = (gIdx, iIdx) => {
-        const val = document.getElementById(`q-input-${gIdx}-${iIdx}`).value;
-        set(ref(db, `equity-game-v12-kaohsiung/questionsGroup/${gIdx}/items/${iIdx}`), val).then(() => alert("題目已儲存"));
-    };
-
-    window.updateCharConfig = (idx) => {
-        const data = {
-            name: document.getElementById(`c-n-${idx}`).value,
-            weekday: document.getElementById(`c-wd-${idx}`).value,
-            weekend: document.getElementById(`c-we-${idx}`).value,
-            color: serverData.configChars[idx].color || "#ccc"
-        };
-        set(ref(db, `equity-game-v12-kaohsiung/configChars/${idx}`), data).then(() => alert("身分已更新"));
-    };
-
-    window.addCharacter = () => {
-        const nextIdx = serverData.configChars.length;
-        const col = "hsl(" + (Math.random()*360) + ", 70%, 50%)";
-        set(ref(db, `equity-game-v12-kaohsiung/configChars/${nextIdx}`), { name: "新角色", color: col, weekday: "", weekend: "" });
-    };
-
-    window.removeCharacter = (idx) => {
-        if(!confirm("確定刪除？")) return;
-        const chars = [...serverData.configChars];
-        chars.splice(idx, 1);
-        set(ref(db, `equity-game-v12-kaohsiung/configChars`), chars);
-    };
-
-    // --- 管理：重置功能 ---
     window.dbSoftReset = () => {
-        if(!confirm("這將歸零所有玩家位置。您的題庫與角色資訊會被保留，確定嗎？")) return;
+        if(!confirm("這將歸零所有玩家。題庫將被保留，確定嗎？")) return;
         update(gameRef, { q: 1, isRevealed: false, status: 'running' });
-        remove(ref(db, 'equity-game-v12-kaohsiung/players')).then(() => alert("棋子已歸零！"));
+        remove(ref(db, 'equity-game-v14-pro/players')).then(() => alert("已清空玩家"));
     };
 
-    window.dbHardReset = () => {
-        if(!confirm("這將徹底清空並恢復預設題庫與角色。確定嗎？")) return;
-        const titles = ["第一組：家庭與經濟資源（先天物質特權）","第二組：社會資本與家庭後援（人際支持特權）","第三組：數位落差與地理位置（資訊獲取特權）","第四組：自主學習與求知行為（後天內在動能）","第五組：韌性、責任與實踐力（持續前進的關鍵）"];
-        const newGroups = titles.map(title => ({ title: title, items: Array(10).fill("編輯題目...") }));
-        set(gameRef, { 
-            q: 1, isRevealed: false, status: 'running', players: {}, questionsGroup: newGroups,
-            configChars: [
-                {name: "達嗨", color: "#3b82f6", weekday: "平日情境...", weekend: "假日情境..."},
-                {name: "維恩", color: "#fbbf24", weekday: "平日情境...", weekend: "假日情境..."}
-            ]
-        }).then(() => location.reload());
-    };
-
-    // --- 學生連線邏輯 ---
+    // --- 學生邏輯 ---
     window.joinSimMode = (idx) => setupPlayer(serverData.configChars[idx].name, serverData.configChars[idx].color, "sim_" + idx);
     window.joinRealMode = () => {
         if(myUID && myUID.startsWith('real_')) setupPlayer(null, null, myUID);
@@ -249,65 +290,35 @@
             setupPlayer("Player " + (count + 1), "#94a3b8", "real_" + Math.random().toString(36).substr(2, 5));
         }
     };
-
     function setupPlayer(name, color, uid) {
-        myUID = uid; localStorage.setItem('equity_v12_uid', uid); myRole = 'student';
-        get(ref(db, `equity-game-v12-kaohsiung/players/${uid}`)).then((snap) => {
+        myUID = uid; localStorage.setItem('equity_v14_uid', uid); myRole = 'student';
+        get(ref(db, `equity-game-v14-pro/players/${uid}`)).then((snap) => {
             const d = snap.val();
-            update(ref(db, `equity-game-v12-kaohsiung/players/${uid}`), { 
-                name: d?.name || name, color: d?.color || color, 
-                pos: d?.pos || 0, startPosOfQ: d?.pos || 0, lastMovedQ: d?.lastMovedQ || 0 
-            });
+            update(ref(db, `equity-game-v14-pro/players/${uid}`), { name: d?.name || name, color: d?.color || color, pos: d?.pos || 0, startPosOfQ: d?.pos || 0, lastMovedQ: d?.lastMovedQ || 0 });
             document.getElementById('player-tag').innerText = (d?.name || name);
             document.getElementById('player-tag').style.background = d?.color || color;
             window.showPage('page-game');
         });
     }
-
     window.dbMove = (dir) => {
         if(serverData.status === 'paused') return;
-        const p = serverData.players[myUID];
-        update(ref(db, `equity-game-v12-kaohsiung/players/${myUID}`), { pos: Math.max(0, p.startPosOfQ + dir), lastMovedQ: serverData.q });
+        update(ref(db, `equity-game-v14-pro/players/${myUID}`), { pos: Math.max(0, serverData.players[myUID].startPosOfQ + dir), lastMovedQ: serverData.q });
     };
-    window.dbUndo = () => update(ref(db, `equity-game-v12-kaohsiung/players/${myUID}`), { pos: serverData.players[myUID].startPosOfQ, lastMovedQ: 0 });
+    window.dbUndo = () => update(ref(db, `equity-game-v14-pro/players/${myUID}`), { pos: serverData.players[myUID].startPosOfQ, lastMovedQ: 0 });
 
-    // --- 核心渲染引擎 ---
-    function renderEditors() {
-        const qContainer = document.getElementById('q-groups-container');
-        qContainer.innerHTML = "";
-        serverData.questionsGroup.forEach((g, gIdx) => {
-            let html = `<div class="group-box"><div class="group-title">${g.title}</div><div class="editor-grid">`;
-            g.items.forEach((item, iIdx) => {
-                html += `<div class="q-item"><span style="font-size:12px;color:var(--gold);">#${gIdx*10+iIdx+1}</span>
-                    <input id="q-input-${gIdx}-${iIdx}" value="${item}">
-                    <button class="btn" style="background:var(--blue);padding:5px 12px;font-size:12px;" onclick="window.updateQuestionText(${gIdx}, ${iIdx})">存</button></div>`;
-            });
-            html += `</div></div>`; qContainer.innerHTML += html;
-        });
-
-        const cContainer = document.getElementById('char-editor-container');
-        cContainer.innerHTML = "";
-        serverData.configChars.forEach((c, i) => {
-            cContainer.innerHTML += `<div class="group-box"><div class="group-title">角色 #${i+1} <button class="btn" style="background:var(--red);padding:5px 10px;font-size:12px;" onclick="window.removeCharacter(${i})">刪除</button></div>
-                名稱：<input id="c-n-${i}" value="${c.name}">平日情境：<textarea id="c-wd-${i}" rows="2">${c.weekday || ''}</textarea>假日情境：<textarea id="c-we-${i}" rows="2">${c.weekend || ''}</textarea>
-                <button class="btn" style="background:var(--blue);width:100%;" onclick="window.updateCharConfig(${i})">儲存</button></div>`;
-        });
-    }
-
+    // --- 同步監聽 ---
     onValue(gameRef, (snap) => {
         const d = snap.val(); if(!d) return;
         serverData = d; serverData.players = d.players || {}; serverData.questionsGroup = d.questionsGroup || []; serverData.configChars = d.configChars || [];
-
+        
         document.getElementById('display-q-num').innerText = d.q;
         document.getElementById('admin-q-num').innerText = d.q;
-        
-        // 學生題目顯示
+
         let flattened = []; serverData.questionsGroup.forEach(g => { if(g.items) flattened = flattened.concat(g.items); });
         const qBox = document.getElementById('current-q-text');
         if(d.isRevealed) { qBox.innerText = flattened[d.q - 1] || "尚未編輯..."; qBox.classList.remove('q-hidden'); }
         else { qBox.innerText = "🔒 聽取導師佈題揭曉中..."; qBox.classList.add('q-hidden'); }
 
-        // 教師端同步
         if(myRole === 'teacher') {
             const isP = d.status === 'paused';
             const pBtn = document.getElementById('pause-btn-admin');
@@ -317,25 +328,33 @@
             document.getElementById('hide-btn-admin').style.border = !d.isRevealed ? "4px solid white" : "none";
         }
 
-        // 學生身分選擇清單
-        const simList = document.getElementById('sim-char-list');
-        simList.innerHTML = "";
+        const simList = document.getElementById('sim-char-list'); simList.innerHTML = "";
         serverData.configChars.forEach((c, i) => {
             simList.innerHTML += `<div class="char-card" onclick="window.joinSimMode(${i})"><h3 style="margin:0;color:var(--gold);">${c.name}</h3><div class="char-tag">🗓️ 平日</div><div style="font-size:13px;color:#ccc;">${c.weekday}</div><div class="char-tag">⛱️ 假日</div><div style="font-size:13px;color:#ccc;">${c.weekend}</div></div>`;
         });
 
-        // 學生操作狀態
         if(myRole === 'student') {
-            const p = serverData.players[myUID]; const hasMoved = p && p.lastMovedQ === serverData.q; const isP = serverData.status === 'paused';
+            const p = serverData.players[myUID]; const hasMoved = p && p.lastMovedQ === serverData.q; const isP = d.status === 'paused';
             document.getElementById('move-btns-group').style.display = isP ? "none" : "flex";
             document.getElementById('lock-msg').style.display = isP ? "block" : "none";
             document.getElementById('btn-undo').style.display = (hasMoved && !isP) ? "inline-block" : "none";
-            document.getElementById('move-status-msg').innerText = isP ? "⏸ 命運凍結中" : (hasMoved ? "✅ 已完成本題抉擇" : (d.isRevealed ? "⚡ 請做出選擇" : "💭 聽取導師口述題目..."));
+            document.getElementById('move-status-msg').innerText = isP ? "⏸ 命運凍結中" : (hasMoved ? "✅ 已完成本題抉擇" : (d.isRevealed ? "⚡ 請點擊做出選擇" : "💭 聽取導師口述題目..."));
             document.getElementById('btn-stay').style.display = hasMoved ? "none" : "inline-block";
             document.getElementById('btn-back').style.display = hasMoved ? "none" : "inline-block";
             document.getElementById('btn-forward').style.display = hasMoved ? "none" : "inline-block";
         }
     });
+
+    // --- 初始化檢查 (若完全為空則建立結構) ---
+    async function checkInit() {
+        const snap = await get(gameRef);
+        if(!snap.exists()) {
+            const titles = ["第一組：先天物質特權","第二組：人際支持特權","第三組：資訊獲取特權","第四組：後天內在動能","第五組：持續前進的關鍵"];
+            const newGroups = titles.map(title => ({ title: title, items: ["點擊編輯題目..."] }));
+            set(gameRef, { q: 1, isRevealed: false, status: 'running', players: {}, questionsGroup: newGroups, configChars: [{name: "範例角色", weekday: "情境描述...", weekend: "休閒描述...", color: "#3b82f6"}] });
+        }
+    }
+    checkInit();
 
     // Canvas 渲染
     const canvas = document.getElementById('mainCanvas'); const ctx = canvas.getContext('2d');
