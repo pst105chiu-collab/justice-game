@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>平權不平權？— 社會地位馬拉松</title>
     <style>
-        :root { --dark: #0f172a; --gold: #ffb700; --blue: #3b82f6; --red: #ef4444; --green: #22c55e; --panel: #1e293b; }
+        :root { --dark: #0f172a; --gold: #ffb700; --blue: #3b82f6; --red: #ef4444; --green: #22c55e; }
         body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--dark); color: #f8fafc; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .container { background: #1e293b; width: 95%; max-width: 1200px; border-radius: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); margin: 20px; padding: 30px; border: 1px solid #334155; position: relative; }
         .page { display: none; flex-direction: column; align-items: center; width: 100%; animation: fadeIn 0.4s; }
@@ -31,10 +31,10 @@
         .admin-section.active { display: flex; }
 
         .group-box { background: #334155; border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #475569; }
-        .group-title { color: var(--gold); font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid #475569; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .editor-grid { display: flex; flex-direction: column; gap: 10px; }
-        .q-item { display: flex; gap: 10px; align-items: center; background: #1e293b; padding: 10px; border-radius: 10px; }
-        input, textarea { background: #0f172a; color: #fff; padding: 12px; border: 1px solid #475569; border-radius: 10px; width: 100%; box-sizing: border-box; font-size: 14px; }
+        .group-title { color: var(--gold); font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid #475569; padding-bottom: 8px; }
+        .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+        .q-item { display: flex; gap: 10px; align-items: center; background: #0f172a; padding: 10px; border-radius: 10px; margin-bottom: 5px;}
+        input, textarea { background: #1e293b; color: #fff; padding: 12px; border: 1px solid #475569; border-radius: 10px; width: 100%; box-sizing: border-box; font-size: 14px; }
         
         canvas { background: #1a1a1a; border-radius: 15px; width: 100%; border: 6px solid #334155; margin: 20px 0; }
         .char-card { background: #2d3748; border: 2px solid #475569; padding: 20px; border-radius: 15px; cursor: pointer; text-align: left; transition: 0.3s; height: 100%; }
@@ -63,7 +63,7 @@
     </div>
 
     <div id="page-sim-select" class="page">
-        <h2>領取您的人生設定</h2>
+        <h2>請領取您的人生設定</h2>
         <div id="sim-char-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; width: 100%;"></div>
         <button class="btn" style="background:#475569; margin-top:30px" onclick="window.showPage('page-home')">返回首頁</button>
     </div>
@@ -102,12 +102,12 @@
                 <div class="group-box">
                     <div class="group-title">全域控制</div>
                     <button id="pause-btn-admin" class="btn" style="width:100%; height:70px; font-size:20px;" onclick="window.dbTogglePause()">⏸ 啟動全體凍結</button>
-                    <button class="btn" style="background:var(--red); width:100%; margin-top:20px;" onclick="window.dbReset()">🧨 數據大清洗 (重新生成分類結構)</button>
+                    <button class="btn" style="background:var(--red); width:100%; margin-top:20px;" onclick="window.dbReset()">🧨 數據大清洗 (重新生成 50 格結構)</button>
                 </div>
             </div>
 
             <div id="sec-q" class="admin-section">
-                <div id="q-groups-container" style="max-height: 550px; overflow-y: auto;"></div>
+                <div id="q-groups-container" style="max-height: 550px; overflow-y: auto; width: 100%;"></div>
             </div>
 
             <div id="sec-c" class="admin-section">
@@ -119,9 +119,9 @@
         <div id="student-controls" style="margin-top:20px; text-align:center; width: 100%;">
             <p id="lock-msg" style="color:var(--red); font-size: 24px; font-weight:900; background:white; padding:15px; border-radius:12px; display:none; border: 4px solid var(--red);">⏸ 社會已暫停！請專心聽講 ⏸</p>
             <div id="move-btns-group" style="display:flex; gap:15px; justify-content:center;">
-                <button id="btn-back" class="btn" style="background:var(--red); width:170px; height:85px; font-size:20px;" onclick="window.dbMove(-1)">◀ 退後</button>
-                <button id="btn-stay" class="btn" style="background:#64748b; width:170px; height:85px; font-size:20px;" onclick="window.dbMove(0)">原地</button>
-                <button id="btn-forward" class="btn" style="background:var(--green); width:170px; height:85px; font-size:20px;" onclick="window.dbMove(1)">向前 ▶</button>
+                <button id="btn-back" class="btn" style="background:var(--red); width:170px; height:85px; font-size:20px;" onclick="window.dbMove(-1)">◀ 退後一步</button>
+                <button id="btn-stay" class="btn" style="background:#64748b; width:170px; height:85px; font-size:20px;" onclick="window.dbMove(0)">留在原地</button>
+                <button id="btn-forward" class="btn" style="background:var(--green); width:170px; height:85px; font-size:20px;" onclick="window.dbMove(1)">向前一步 ▶</button>
             </div>
             <button id="btn-undo" class="btn" style="background:#334155; width:80%; margin-top:15px; display:none;" onclick="window.dbUndo()">↺ 按錯了？重新選擇</button>
             <p id="move-status-msg" style="margin-top:15px; color:var(--gold); font-weight:bold; font-size:18px;"></p>
@@ -145,13 +145,13 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, 'equity-game-v9-pro');
+    const gameRef = ref(db, 'equity-game-v10-final');
 
-    let myUID = localStorage.getItem('equity_v9_pro_uid');
+    let myUID = localStorage.getItem('equity_v10_final_uid');
     let myRole = null; 
     let serverData = { q: 1, isRevealed: false, status: 'running', players: {}, questionsGroup: [], configChars: [] };
 
-    // --- 強制掛載所有全域函數 ---
+    // --- 全域函數掛載 ---
     window.showPage = (id) => {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -174,43 +174,25 @@
         } else { alert('驗證失敗'); }
     };
 
-    // --- 分組題庫增減功能 (修復版) ---
-    window.addQuestion = (gIdx) => {
-        const group = serverData.questionsGroup[gIdx];
-        if(!group.items) group.items = [];
-        group.items.push("新社會情境：請點擊存檔編輯...");
-        // 更新 Firebase
-        set(ref(db, `equity-game-v9-pro/questionsGroup/${gIdx}/items`), group.items)
-        .then(() => { alert("已新增題目空間，請編輯後存檔。"); });
-    };
-
-    window.removeQuestion = (gIdx, iIdx) => {
-        if(!confirm("確定要刪除這道題目嗎？")) return;
-        const items = [...serverData.questionsGroup[gIdx].items];
-        items.splice(iIdx, 1);
-        set(ref(db, `equity-game-v9-pro/questionsGroup/${gIdx}/items`), items);
-    };
-
     window.updateQuestionText = (gIdx, iIdx) => {
         const val = document.getElementById(`q-input-${gIdx}-${iIdx}`).value;
-        set(ref(db, `equity-game-v9-pro/questionsGroup/${gIdx}/items/${iIdx}`), val)
-        .then(() => alert("題目已更新！"));
+        set(ref(db, `equity-game-v10-final/questionsGroup/${gIdx}/items/${iIdx}`), val)
+        .then(() => alert(`第 ${gIdx+1} 組第 ${iIdx+1} 題已儲存雲端`));
     };
 
-    // --- 角色增減功能 ---
     window.addCharacter = () => {
         const nextIdx = serverData.configChars.length;
         const col = "hsl(" + (Math.random()*360) + ", 70%, 50%)";
-        set(ref(db, `equity-game-v9-pro/configChars/${nextIdx}`), {
-            name: "新身分", color: col, weekday: "平日情境...", weekend: "假日情境..."
+        set(ref(db, `equity-game-v10-final/configChars/${nextIdx}`), {
+            name: "新角色", color: col, weekday: "平日情境...", weekend: "假日情境..."
         });
     };
 
     window.removeCharacter = (idx) => {
-        if(!confirm("確定刪除此角色？")) return;
+        if(!confirm("確定刪除？")) return;
         const chars = [...serverData.configChars];
         chars.splice(idx, 1);
-        set(ref(db, `equity-game-v9-pro/configChars`), chars);
+        set(ref(db, `equity-game-v10-final/configChars`), chars);
     };
 
     window.updateCharConfig = (idx) => {
@@ -220,10 +202,10 @@
             weekend: document.getElementById(`c-we-${idx}`).value,
             color: serverData.configChars[idx].color
         };
-        set(ref(db, `equity-game-v9-pro/configChars/${idx}`), data);
+        set(ref(db, `equity-game-v10-final/configChars/${idx}`), data).then(() => alert("角色資訊已更新"));
     };
 
-    // --- 遊戲同步邏輯 ---
+    // --- 遊戲邏輯 ---
     window.joinSimMode = (idx) => {
         const char = serverData.configChars[idx];
         setupPlayer(char.name, char.color, "sim_" + idx);
@@ -232,16 +214,16 @@
     window.joinRealMode = () => {
         if(myUID && myUID.startsWith('real_')) setupPlayer(null, null, myUID);
         else {
-            const currentPlayers = Object.keys(serverData.players || {}).filter(k => k.startsWith('real_')).length;
-            setupPlayer("Player " + (currentPlayers + 1), "#94a3b8", "real_" + Math.random().toString(36).substr(2, 5));
+            const currentCount = Object.keys(serverData.players || {}).filter(k => k.startsWith('real_')).length;
+            setupPlayer("Player " + (currentCount + 1), "#94a3b8", "real_" + Math.random().toString(36).substr(2, 5));
         }
-    };
+    }
 
     function setupPlayer(name, color, uid) {
-        myUID = uid; localStorage.setItem('equity_v9_pro_uid', uid); myRole = 'student';
-        get(ref(db, `equity-game-v9-pro/players/${uid}`)).then((snap) => {
+        myUID = uid; localStorage.setItem('equity_v10_final_uid', uid); myRole = 'student';
+        get(ref(db, `equity-game-v10-final/players/${uid}`)).then((snap) => {
             const d = snap.val();
-            update(ref(db, `equity-game-v9-pro/players/${uid}`), { 
+            update(ref(db, `equity-game-v10-final/players/${uid}`), { 
                 name: d?.name || name, color: d?.color || color, 
                 pos: d?.pos || 0, startPosOfQ: d?.pos || 0, lastMovedQ: d?.lastMovedQ || 0 
             });
@@ -253,55 +235,56 @@
 
     window.dbChangeQ = (dir) => {
         const nextQ = serverData.q + dir;
-        const allQuestions = [];
-        serverData.questionsGroup.forEach(g => { if(g.items) g.items.forEach(it => allQuestions.push(it)); });
-        if(nextQ < 1 || nextQ > allQuestions.length) return;
-        
+        const totalQs = 50; // 固定總數
+        if(nextQ < 1 || nextQ > totalQs) return;
         const updates = { q: nextQ, isRevealed: false };
         for(let uid in serverData.players) { updates[`players/${uid}/startPosOfQ`] = serverData.players[uid].pos; }
         update(gameRef, updates);
     };
 
-    window.dbToggleReveal = (show) => set(ref(db, 'equity-game-v9-pro/isRevealed'), show);
-    window.dbTogglePause = () => set(ref(db, 'equity-game-v9-pro/status'), serverData.status === 'running' ? 'paused' : 'running');
+    window.dbToggleReveal = (show) => set(ref(db, 'equity-game-v10-final/isRevealed'), show);
+    window.dbTogglePause = () => set(ref(db, 'equity-game-v10-final/status'), serverData.status === 'running' ? 'paused' : 'running');
 
     window.dbReset = () => {
-        if(!confirm("數據大清洗將建立全新的五組特權結構，確定嗎？")) return;
-        const newGroups = [
-            { title: "第一組：家庭與經濟資源（先天物質特權）", items: ["我的家裡有足夠的空間讓我讀書。"] },
-            { title: "第二組：社會資本與家庭後援（人際支持特權）", items: ["我的父母有能力指導我的作業。"] },
-            { title: "第三組：數位落差與地理位置（資訊獲取特權）", items: ["我住家附近有圖書館或便利的網路。"] },
-            { title: "第四組：自主學習與求知行為（後天內在動能）", items: ["我會主動尋找學習資源。"] },
-            { title: "第五組：韌性、責任與實踐力（持續前進的關鍵）", items: ["遇到困難我不會輕言放棄。"] }
+        if(!confirm("確定要進行數據大清洗？這將建立固定的 50 格佈題空間。")) return;
+        const titles = [
+            "第一組：家庭與經濟資源（先天物質特權）",
+            "第二組：社會資本與家庭後援（人際支持特權）",
+            "第三組：數位落差與地理位置（資訊獲取特權）",
+            "第四組：自主學習與求知行為（後天內在動能）",
+            "第五組：韌性、責任與實踐力（持續前進的關鍵）"
         ];
+        const newGroups = titles.map(title => ({
+            title: title,
+            items: Array(10).fill("尚未編輯題目內容...")
+        }));
+        
         set(gameRef, { 
             q: 1, isRevealed: false, status: 'running', players: {}, questionsGroup: newGroups,
             configChars: [
-                {name: "達嗨", color: "#3b82f6", weekday: "清晨山區醒來...", weekend: "巡視農地..."},
-                {name: "維恩", color: "#fbbf24", weekday: "豪宅醒來...", weekend: "飛往日本看展..."},
-                {name: "小明", color: "#f472b6", weekday: "平凡早餐...", weekend: "打球運動..."},
-                {name: "小晴", color: "#fb923c", weekday: "照顧奶奶...", weekend: "分擔家務..."},
-                {name: "阿諾", color: "#a78bfa", weekday: "輪椅生活...", weekend: "物理治療..."}
+                {name: "達嗨", color: "#3b82f6", weekday: "平日情境...", weekend: "假日情境..."},
+                {name: "維恩", color: "#fbbf24", weekday: "平日情境...", weekend: "假日情境..."},
+                {name: "小明", color: "#f472b6", weekday: "平日情境...", weekend: "假日情境..."},
+                {name: "小晴", color: "#fb923c", weekday: "平日情境...", weekend: "假日情境..."},
+                {name: "阿諾", color: "#a78bfa", weekday: "平日情境...", weekend: "假日情境..."}
             ]
-        });
-        alert("重置成功，您可以開始編輯五大類題目。");
+        }).then(() => alert("初始化成功！請前往題庫編輯。"));
     };
 
     window.dbMove = (dir) => {
         const p = serverData.players[myUID];
         if(!p || serverData.status === 'paused') return;
-        update(ref(db, `equity-game-v9-pro/players/${myUID}`), { pos: Math.max(0, p.startPosOfQ + dir), lastMovedQ: serverData.q });
+        update(ref(db, `equity-game-v10-final/players/${myUID}`), { pos: Math.max(0, p.startPosOfQ + dir), lastMovedQ: serverData.q });
     };
 
     window.dbUndo = () => {
         const p = serverData.players[myUID];
-        update(ref(db, `equity-game-v9-pro/players/${myUID}`), { pos: p.startPosOfQ, lastMovedQ: 0 });
+        update(ref(db, `equity-game-v10-final/players/${myUID}`), { pos: p.startPosOfQ, lastMovedQ: 0 });
     };
 
-    // --- 資料同步渲染 ---
+    // --- 同步與渲染 ---
     onValue(gameRef, (snap) => {
         const d = snap.val(); if(!d) return;
-        const oldG = serverData.questionsGroup.length;
         const oldC = serverData.configChars.length;
         serverData = d;
         serverData.players = d.players || {};
@@ -311,23 +294,23 @@
         document.getElementById('display-q-num').innerText = d.q;
         document.getElementById('admin-q-num').innerText = d.q;
         
-        // 攤平題庫顯示
-        const allQuestions = [];
-        serverData.questionsGroup.forEach(g => { if(g.items) g.items.forEach(it => allQuestions.push(it)); });
+        // 展平所有題目進行顯示
+        let flattened = [];
+        serverData.questionsGroup.forEach(g => { if(g.items) flattened = flattened.concat(g.items); });
 
         const qBox = document.getElementById('current-q-text');
         if(d.isRevealed) {
-            qBox.innerText = allQuestions[d.q - 1] || "題目未編輯...";
+            qBox.innerText = flattened[d.q - 1] || "題目尚未編輯...";
             qBox.classList.remove('q-hidden');
         } else {
-            qBox.innerText = "🔒 聽取導師佈題揭曉中...";
+            qBox.innerText = "🔒 聽取導師口述佈題揭曉中...";
             qBox.classList.add('q-hidden');
         }
 
         if(myRole === 'teacher') {
             const pBtn = document.getElementById('pause-btn-admin');
             const isPaused = d.status === 'paused';
-            pBtn.innerText = isPaused ? "▶ 恢復社會運作" : "⏸ 啟動全體凍結";
+            pBtn.innerText = isPaused ? "▶ 恢復社會運作 (Resume)" : "⏸ 啟動全體凍結 (Freeze)";
             pBtn.style.background = isPaused ? "var(--green)" : "#f59e0b";
             
             const rBtn = document.getElementById('reveal-btn-admin');
@@ -335,24 +318,20 @@
             rBtn.style.border = d.isRevealed ? "4px solid white" : "none";
             hBtn.style.border = !d.isRevealed ? "4px solid white" : "none";
 
-            // 題庫編輯器
+            // 題庫編輯區：僅在初始化或結構變動時生成
             const qContainer = document.getElementById('q-groups-container');
-            if(qContainer.innerHTML === "" || serverData._lastType === 'change') {
-                qContainer.innerHTML = "";
+            if(qContainer.innerHTML === "") {
                 serverData.questionsGroup.forEach((g, gIdx) => {
                     let html = `<div class="group-box">
-                        <div class="group-title">${g.title} <button class="btn" style="background:var(--blue); padding:5px 10px; font-size:12px;" onclick="window.addQuestion(${gIdx})">➕ 增題</button></div>
+                        <div class="group-title">${g.title}</div>
                         <div class="editor-grid">`;
-                    if(g.items) {
-                        g.items.forEach((it, iIdx) => {
-                            html += `<div class="q-item">
-                                <span style="font-weight:bold;">${iIdx+1}.</span>
-                                <input id="q-input-${gIdx}-${iIdx}" value="${it}">
-                                <button class="btn" style="background:var(--green); padding:5px;" onclick="window.updateQuestionText(${gIdx}, ${iIdx})">存</button>
-                                <button class="btn" style="background:var(--red); padding:5px;" onclick="window.removeQuestion(${gIdx}, ${iIdx})">❌</button>
-                            </div>`;
-                        });
-                    }
+                    g.items.forEach((item, iIdx) => {
+                        html += `<div class="q-item">
+                            <span style="font-size:12px; color:var(--gold); font-weight:bold;">#${gIdx*10+iIdx+1}</span>
+                            <input id="q-input-${gIdx}-${iIdx}" value="${item}">
+                            <button class="btn" style="background:var(--blue); padding:5px 12px; font-size:12px;" onclick="window.updateQuestionText(${gIdx}, ${iIdx})">存</button>
+                        </div>`;
+                    });
                     html += `</div></div>`;
                     qContainer.innerHTML += html;
                 });
@@ -368,7 +347,7 @@
                         名稱：<input id="c-n-${i}" value="${c.name}">
                         平日：<textarea id="c-wd-${i}" rows="2">${c.weekday || ''}</textarea>
                         假日：<textarea id="c-we-${i}" rows="2">${c.weekend || ''}</textarea>
-                        <button class="btn" style="background:var(--blue); width:100%;" onclick="window.updateCharConfig(${i})">儲存身分</button>
+                        <button class="btn" style="background:var(--blue); width:100%;" onclick="window.updateCharConfig(${i})">儲存</button>
                     </div>`;
                 });
             }
@@ -393,7 +372,7 @@
             document.getElementById('move-btns-group').style.display = isPaused ? "none" : "flex";
             document.getElementById('lock-msg').style.display = isPaused ? "block" : "none";
             document.getElementById('btn-undo').style.display = (hasMoved && !isPaused) ? "inline-block" : "none";
-            document.getElementById('move-status-msg').innerText = isPaused ? "⏸ 命運凍結中" : (hasMoved ? "✅ 已完成抉擇" : (d.isRevealed ? "⚡ 請點擊做出選擇" : "💭 聽取導師口述題目..."));
+            document.getElementById('move-status-msg').innerText = isPaused ? "⏸ 命運凍結中" : (hasMoved ? "✅ 已完成抉擇" : (d.isRevealed ? "⚡ 請做出選擇" : "💭 聽取導師口述題目..."));
             document.getElementById('btn-stay').style.display = hasMoved ? "none" : "inline-block";
             document.getElementById('btn-back').style.display = hasMoved ? "none" : "inline-block";
             document.getElementById('btn-forward').style.display = hasMoved ? "none" : "inline-block";
