@@ -5,49 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>平全不平權？— 社會生存模擬器</title>
     <style>
-        :root { 
-            --dark: #121212; --gold: #ffd700; --blue: #3182ce; 
-            --red: #e53e3e; --green: #38a169;
-        }
-        body { 
-            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; 
-            background: var(--dark); color: #eee; margin: 0; 
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh; 
-        }
-        .container { 
-            background: #1e1e1e; width: 95%; max-width: 1100px; border-radius: 24px; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5); margin: 20px; padding: 30px; 
-            position: relative; border: 1px solid #333;
-        }
+        :root { --dark: #121212; --gold: #ffd700; --blue: #3182ce; --red: #e53e3e; --green: #38a169; }
+        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--dark); color: #eee; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { background: #1e1e1e; width: 95%; max-width: 1100px; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); margin: 20px; padding: 30px; position: relative; border: 1px solid #333; }
         .page { display: none; flex-direction: column; align-items: center; width: 100%; animation: slideUp 0.4s ease-out; }
         .page.active { display: flex; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        h1 { font-size: 3rem; margin-bottom: 5px; color: var(--gold); text-shadow: 2px 2px 0px #000; }
-        .slogan { font-style: italic; color: #718096; margin-bottom: 30px; text-align: center; }
+        /* 題目看板風格 */
+        .q-display-board { background: #2d2d2d; border-left: 8px solid var(--gold); padding: 20px; width: 100%; border-radius: 12px; margin-bottom: 20px; box-sizing: border-box; min-height: 80px; }
+        .q-text { font-size: 24px; font-weight: bold; color: var(--gold); }
 
-        .btn { 
-            padding: 15px 30px; border-radius: 14px; border: none; font-weight: 900; 
-            cursor: pointer; transition: 0.3s; font-size: 18px; color: white; margin: 10px;
-            box-shadow: 0 6px 0px rgba(0,0,0,0.2); text-transform: uppercase;
-        }
-        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0px rgba(0,0,0,0.2); }
-        .btn-admin { background: #444; font-size: 14px; opacity: 0.7; }
-        .btn-mode-1 { background: var(--blue); width: 320px; height: 120px; font-size: 22px; border: 3px solid #fff; }
-        .btn-mode-2 { background: var(--green); width: 320px; height: 120px; font-size: 22px; border: 3px solid #fff; }
-        .btn-action { width: 160px; height: 90px; font-size: 24px; border: 4px solid #fff; }
-
-        .char-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px; width: 100%; margin-top: 20px; }
-        .char-card { 
-            background: #2d2d2d; border: 2px solid #444; padding: 20px; border-radius: 18px; 
-            cursor: pointer; transition: 0.3s; position: relative; text-align: center;
-        }
-        .char-card:hover { border-color: var(--gold); background: #3d3d3d; transform: scale(1.05); }
-
-        .teacher-panel { background: #2d3748; border: 3px solid var(--gold); padding: 25px; border-radius: 20px; width: 100%; box-sizing: border-box; }
+        .btn { padding: 15px 30px; border-radius: 14px; border: none; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 18px; color: white; margin: 10px; box-shadow: 0 6px 0px rgba(0,0,0,0.2); text-transform: uppercase; }
+        .btn:disabled { background: #444 !important; opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: translateY(4px); }
+        .btn-mode { width: 320px; height: 100px; font-size: 20px; }
+        
+        .char-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 15px; width: 100%; }
+        .char-card { background: #2d2d2d; border: 2px solid #444; padding: 15px; border-radius: 18px; cursor: pointer; text-align: center; }
+        
+        /* 編輯器樣式 */
+        .editor-section { background: #2d3748; padding: 15px; border-radius: 12px; margin-top: 15px; width: 100%; text-align: left; }
+        input, textarea { background: #333; color: #fff; padding: 10px; border: 1px solid #444; border-radius: 8px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
+        
         canvas { background: #222; border-radius: 12px; width: 100%; margin: 20px 0; border: 4px solid #444; }
-        input { background: #333; color: #fff; padding: 15px; margin: 10px; border: 2px solid #444; border-radius: 10px; width: 280px; text-align: center; font-size: 18px; }
-        .joke-label { position: absolute; top: -10px; right: 10px; background: var(--red); color: white; padding: 2px 10px; font-size: 12px; border-radius: 5px; transform: rotate(5deg); }
     </style>
 </head>
 <body>
@@ -55,59 +35,70 @@
 <div class="container">
     <div id="page-home" class="page active">
         <h1>平全不平權？</h1>
-        <div class="slogan">「起跑線是可以移動的，只要你的背景夠重。」</div>
         <div style="display:flex; flex-wrap: wrap; justify-content:center; gap: 20px;">
-            <button class="btn btn-mode-1" onclick="window.showPage('page-sim-select')">🎭 投胎模擬器</button>
-            <button class="btn btn-mode-2" onclick="window.joinRealMode()">🏗️ 生存大亂鬥</button>
+            <button class="btn btn-mode" style="background:var(--blue)" onclick="window.showPage('page-sim-select')">🎭 角色模擬器</button>
+            <button class="btn btn-mode" style="background:var(--green)" onclick="window.joinRealMode()">🏗️ 生存大亂鬥</button>
         </div>
-        <button class="btn btn-admin" style="margin-top: 40px;" onclick="window.showPage('page-login')">🔑 進入命運後台</button>
+        <button class="btn" style="background:#444; font-size:14px; margin-top:30px;" onclick="window.showPage('page-login')">🔑 命運後台</button>
     </div>
 
     <div id="page-login" class="page">
-        <h2>命運規劃師驗證</h2>
-        <input type="text" id="admin-user" placeholder="帳號 (admin)">
-        <input type="password" id="admin-pass" placeholder="密碼 (2803)">
-        <div>
-            <button class="btn" style="background:var(--blue)" onclick="window.verifyLogin()">開始主宰</button>
-            <button class="btn" style="background:#555" onclick="window.showPage('page-home')">返回</button>
-        </div>
+        <h2>管理者驗證</h2>
+        <input type="text" id="admin-user" placeholder="帳號">
+        <input type="password" id="admin-pass" placeholder="密碼">
+        <button class="btn" style="background:var(--blue); width:100%" onclick="window.verifyLogin()">登入</button>
+        <button class="btn" style="background:#555; width:100%" onclick="window.showPage('page-home')">返回</button>
     </div>
 
     <div id="page-sim-select" class="page">
-        <h2>選擇你的「出生禮包」</h2>
+        <h2>選擇出生劇本</h2>
         <div class="char-grid" id="sim-char-list"></div>
-        <button class="btn" style="background:#555; margin-top:30px" onclick="window.showPage('page-home')">返回</button>
     </div>
 
     <div id="page-game" class="page">
-        <div style="display:flex; justify-content: space-between; width:100%; align-items:flex-end;">
-            <div id="game-info" style="font-size:36px; font-weight:900;">關卡：<span id="q-num">0</span></div>
-            <div id="player-tag" style="font-weight:bold; padding: 10px 20px; border-radius:12px; font-size: 18px; border: 2px solid #fff;">連線中...</div>
+        <div class="q-display-board">
+            <div style="font-size:12px; color:#aaa; margin-bottom:5px;">目前情境投放：</div>
+            <div id="current-q-text" class="q-text">等待導師佈題中...</div>
+        </div>
+
+        <div style="display:flex; justify-content: space-between; width:100%; align-items:center;">
+            <div style="font-size:24px; font-weight:900;">關卡：<span id="display-q-num">0</span></div>
+            <div id="player-tag" style="padding: 10px 20px; border-radius:12px; font-weight:bold;">載入中...</div>
         </div>
         
         <canvas id="mainCanvas" width="1000" height="420"></canvas>
 
-        <div id="teacher-controls" class="teacher-panel" style="display:none">
-            <button class="btn" style="background:var(--gold); color: #000; width: 100%;" onclick="window.dbNextQ()">發布下一道難題 ➔</button>
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button id="pause-btn" class="btn" style="background:#ed8936; flex:1" onclick="window.dbTogglePause()">⏸ 凍結時間</button>
-                <button class="btn" style="background:var(--red); flex:1" onclick="window.dbReset()">🧨 數據重置</button>
+        <div id="teacher-controls" class="page" style="display:none; padding:0;">
+            <div class="editor-section">
+                <b>📝 佈題編輯器：</b>
+                <textarea id="edit-q-text" placeholder="請輸入目前的社會情境題目..."></textarea>
+                <button class="btn" style="background:var(--gold); color:#000; width:100%; margin:0;" onclick="window.dbUpdateQ()">更新題目並換題 ➔</button>
+            </div>
+            
+            <div class="editor-section">
+                <b>👥 角色背景編輯 (模擬模式用)：</b>
+                <div id="char-editor-list"></div>
+            </div>
+
+            <div style="display:flex; gap:10px; width:100%; margin-top:10px;">
+                <button id="pause-btn" class="btn" style="background:#ed8936; flex:1" onclick="window.dbTogglePause()">⏸ 凍結</button>
+                <button class="btn" style="background:var(--red); flex:1" onclick="window.dbReset()">🧨 數據清空</button>
             </div>
         </div>
 
-        <div id="student-controls" style="margin-top:20px; text-align: center;">
-            <p id="lock-msg" style="color:var(--red); font-size: 20px; font-weight:900; display:none; background:white; padding:10px; border-radius:10px;">⚠️ 命運已被導師凍結 ⚠️</p>
+        <div id="student-controls" style="margin-top:20px; text-align:center;">
             <div id="move-btns">
-                <button class="btn btn-action" style="background:var(--red)" onclick="window.dbMove(-1)">◀ 受挫</button>
-                <button class="btn btn-action" style="background:var(--green)" onclick="window.dbMove(1)">努力 ▶</button>
+                <button id="btn-back" class="btn" style="background:var(--red); width:160px; height:80px;" onclick="window.dbMove(-1)">◀ 受挫</button>
+                <button id="btn-forward" class="btn" style="background:var(--green); width:160px; height:80px;" onclick="window.dbMove(1)">努力 ▶</button>
             </div>
+            <p id="move-msg" style="color:var(--gold); font-weight:bold; margin-top:10px;"></p>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+    import { getDatabase, ref, set, onValue, update, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDDyO58BVHMHr7hJIIchVDlq5uD91D5W0o",
@@ -121,92 +112,138 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, 'equity-game-production');
+    const gameRef = ref(db, 'equity-game-v-kaohsiung');
 
-    const simCharacters = [
-        { name: "達嗨", color: "#3182ce", desc: "布農部落的晨光..." },
-        { name: "維恩", color: "#ecc94b", desc: "保姆車上的 Wi-Fi..." },
-        { name: "小明", color: "#f687b3", desc: "蛋餅與安親班..." },
-        { name: "小晴", color: "#f6ad55", desc: "市場裡的晚餐..." },
-        { name: "阿諾", color: "#9f7aea", desc: "輪椅外的圍牆..." }
-    ];
+    // 角色與狀態初始化
+    let myUID = localStorage.getItem('equity_uid');
+    let myRole = null; 
+    let serverData = { q: 0, qText: "", status: 'running', players: {}, configChars: [] };
 
-    let myRole = null; let myUID = null; let myCharName = "";
-    let serverData = { q: 0, status: 'running', players: {} };
-
-    // --- 關鍵修正：將函數顯式掛載到 window 物件 ---
+    // --- 全域函數掛載 ---
     window.showPage = (id) => {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        const target = document.getElementById(id);
-        if (target) target.classList.add('active');
+        document.getElementById(id).classList.add('active');
     };
 
     window.verifyLogin = () => {
-        const u = document.getElementById('admin-user').value;
-        const p = document.getElementById('admin-pass').value;
-        if(u === 'admin' && p === '2803') {
+        if(document.getElementById('admin-user').value === 'admin' && document.getElementById('admin-pass').value === '2803') {
             myRole = 'teacher';
-            document.getElementById('teacher-controls').style.display = 'block';
+            document.getElementById('teacher-controls').style.display = 'flex';
             document.getElementById('student-controls').style.display = 'none';
             document.getElementById('player-tag').innerText = "👨‍🏫 管理員後台";
             window.showPage('page-game');
-        } else { alert('驗證失敗。'); }
+        } else { alert('身分驗證失敗'); }
     };
 
+    // 進入模擬模式
     window.joinSimMode = (idx) => {
-        myRole = 'student'; myUID = "sim_" + idx; myCharName = simCharacters[idx].name;
-        updateUI(simCharacters[idx].color, myCharName);
-        update(ref(db, `equity-game-production/players/${myUID}`), { name: myCharName, color: simCharacters[idx].color, pos: 0 });
-        window.showPage('page-game');
+        const char = serverData.configChars[idx];
+        setupPlayer(char.name, char.color, "sim_" + idx);
     };
 
+    // 進入現實模式
     window.joinRealMode = () => {
-        myRole = 'student'; myUID = "real_" + Math.random().toString(36).substr(2, 5);
-        onValue(ref(db, 'equity-game-production/players'), (snap) => {
-            if(!myCharName) {
-                const count = snap.exists() ? Object.keys(snap.val()).length + 1 : 1;
-                myCharName = "P" + count;
-                const col = "hsl(" + (Math.random()*360) + ", 70%, 60%)";
-                updateUI(col, myCharName);
-                update(ref(db, `equity-game-production/players/${myUID}`), { name: myCharName, color: col, pos: 0 });
-                window.showPage('page-game');
-            }
-        }, { onlyOnce: true });
+        if(myUID && myUID.startsWith('real_')) {
+            setupPlayer(null, null, myUID); // 沿用舊身分
+        } else {
+            const newUID = "real_" + Math.random().toString(36).substr(2, 6);
+            setupPlayer("Player " + Math.floor(Math.random()*100), "#718096", newUID);
+        }
     };
 
-    window.dbNextQ = () => set(ref(db, 'equity-game-production/q'), serverData.q + 1);
-    window.dbTogglePause = () => set(ref(db, 'equity-game-production/status'), serverData.status === 'running' ? 'paused' : 'running');
-    window.dbMove = (dir) => {
-        if(serverData.status === 'paused') return;
-        const cp = (serverData.players[myUID]?.pos) || 0;
-        set(ref(db, `equity-game-production/players/${myUID}/pos`), Math.max(0, cp + dir));
-    };
-    window.dbReset = () => { if(confirm("確定重置數據？")) set(gameRef, { q: 0, status: 'running', players: {} }); };
-
-    // --- 界面渲染與初始化 ---
-    function updateUI(c, n) { 
-        const t = document.getElementById('player-tag'); 
-        t.innerText = n; t.style.background = c; t.style.color = "#fff"; 
+    function setupPlayer(name, color, uid) {
+        myUID = uid;
+        localStorage.setItem('equity_uid', uid);
+        myRole = 'student';
+        
+        // 如果 Firebase 已有資料，優先沿用
+        get(ref(db, `equity-game-v-kaohsiung/players/${uid}`)).then((snap) => {
+            const data = snap.val();
+            const finalName = data?.name || name;
+            const finalColor = data?.color || color;
+            update(ref(db, `equity-game-v-kaohsiung/players/${uid}`), { name: finalName, color: finalColor, lastMovedQ: data?.lastMovedQ || -1 });
+            document.getElementById('player-tag').innerText = finalName;
+            document.getElementById('player-tag').style.background = finalColor;
+            window.showPage('page-game');
+        });
     }
 
-    const charListDiv = document.getElementById('sim-char-list');
-    simCharacters.forEach((c, idx) => {
-        const card = document.createElement('div');
-        card.className = 'char-card';
-        card.innerHTML = `<div class="joke-label">階級+1</div><b style="color:${c.color}">${c.name}</b><div style="font-size:11px; color:#aaa; margin-top:5px;">${c.desc}</div>`;
-        card.onclick = () => window.joinSimMode(idx);
-        charListDiv.appendChild(card);
-    });
+    // --- 管理員操作 ---
+    window.dbUpdateQ = () => {
+        const newText = document.getElementById('edit-q-text').value;
+        update(gameRef, { q: serverData.q + 1, qText: newText });
+    };
 
+    window.dbTogglePause = () => set(ref(db, 'equity-game-v-kaohsiung/status'), serverData.status === 'running' ? 'paused' : 'running');
+    
+    window.dbReset = () => {
+        if(confirm("重設將清空所有玩家與進度，確定嗎？")) {
+            set(gameRef, { q: 0, qText: "等待佈題...", status: 'running', players: {}, 
+                configChars: [
+                    {name: "達嗨", desc: "布農部落的晨光", color: "#3182ce"},
+                    {name: "維恩", desc: "豪宅裡的保姆車", color: "#ecc94b"},
+                    {name: "小明", desc: "平凡的蛋餅人生", color: "#f687b3"},
+                    {name: "小晴", desc: "市場裡的晚餐", color: "#f6ad55"},
+                    {name: "阿諾", desc: "輪椅外的圍牆", color: "#9f7aea"}
+                ]
+            });
+            location.reload();
+        }
+    };
+
+    window.updateCharConfig = (idx) => {
+        const n = document.getElementById(`edit-char-n-${idx}`).value;
+        const d = document.getElementById(`edit-char-d-${idx}`).value;
+        set(ref(db, `equity-game-v-kaohsiung/configChars/${idx}`), { name: n, desc: d, color: serverData.configChars[idx].color });
+    };
+
+    // --- 學生移動邏輯 (限一次) ---
+    window.dbMove = (dir) => {
+        const p = serverData.players[myUID];
+        if(!p || serverData.status === 'paused') return;
+        if(p.lastMovedQ === serverData.q) {
+            alert("本回合你已經做出選擇了！");
+            return;
+        }
+        const newPos = (p.pos || 0) + dir;
+        update(ref(db, `equity-game-v-kaohsiung/players/${myUID}`), { pos: Math.max(0, newPos), lastMovedQ: serverData.q });
+    };
+
+    // --- 數據監聽與渲染 ---
     onValue(gameRef, (snap) => {
-        const d = snap.val(); if(!d) return;
-        serverData = d; serverData.players = d.players || {};
-        document.getElementById('q-num').innerText = d.q || 0;
-        const isP = d.status === 'paused';
-        document.getElementById('pause-btn').innerText = isP ? "▶ 恢復命運" : "⏸ 凍結命運";
+        const data = snap.val(); if(!data) return;
+        serverData = data;
+        serverData.players = data.players || {};
+        serverData.configChars = data.configChars || [];
+        
+        document.getElementById('display-q-num').innerText = data.q;
+        document.getElementById('current-q-text').innerText = data.qText;
+
+        // 更新模擬角色選擇頁
+        const list = document.getElementById('sim-char-list');
+        list.innerHTML = "";
+        serverData.configChars.forEach((c, i) => {
+            list.innerHTML += `<div class="char-card" onclick="window.joinSimMode(${i})"><b style="color:${c.color}">${c.name}</b><br><small>${c.desc}</small></div>`;
+        });
+
+        // 教師編輯區更新
+        if(myRole === 'teacher') {
+            const edList = document.getElementById('char-editor-list');
+            if(edList.innerHTML === "") {
+                serverData.configChars.forEach((c, i) => {
+                    edList.innerHTML += `<div>${c.name}: <input id="edit-char-n-${i}" value="${c.name}"> <input id="edit-char-d-${i}" value="${c.desc}"> <button onclick="window.updateCharConfig(${i})">保存</button></div>`;
+                });
+            }
+        }
+
+        // 學生按鈕狀態控管
         if(myRole === 'student') {
-            document.getElementById('move-btns').style.display = isP ? "none" : "block";
-            document.getElementById('lock-msg').style.display = isP ? "block" : "none";
+            const p = serverData.players[myUID];
+            const hasMoved = p && p.lastMovedQ === serverData.q;
+            const isPaused = serverData.status === 'paused';
+            document.getElementById('btn-forward').disabled = hasMoved || isPaused;
+            document.getElementById('btn-back').disabled = hasMoved || isPaused;
+            document.getElementById('move-msg').innerText = hasMoved ? "✅ 本題已完成選擇，等待下一題..." : (isPaused ? "⏸ 導師暫停中" : "⚡ 請做出選擇");
         }
     });
 
@@ -215,22 +252,19 @@
     function render() {
         ctx.clearRect(0,0,1000,420);
         const sx = 150; const sd = 20;
-
-        // 起跑線
+        ctx.strokeStyle = "rgba(255,255,255,0.1)"; 
+        for(let i=0; i<10; i++) ctx.strokeRect(20, 50+(i*40), 960, 40);
         ctx.strokeStyle = "#00ff00"; ctx.lineWidth = 4;
         ctx.beginPath(); ctx.moveTo(sx, 40); ctx.lineTo(sx, 400); ctx.stroke();
-        ctx.fillStyle = "#00ff00"; ctx.font = "bold 14px sans-serif"; ctx.fillText("理想起跑線", sx-35, 35);
-
-        // 終點
-        ctx.strokeStyle = "#ffd700"; ctx.setLineDash([5,5]);
+        ctx.setLineDash([5,5]); ctx.strokeStyle = "#ffd700";
         ctx.beginPath(); ctx.moveTo(sx+(40*sd), 40); ctx.lineTo(sx+(40*sd), 400); ctx.stroke();
-        ctx.setLineDash([]); ctx.fillStyle = "#ffd700"; ctx.fillText("成功目標", sx+(40*sd)-30, 35);
-
+        ctx.setLineDash([]);
+        
         Object.keys(serverData.players).forEach((uid, i) => {
             const p = serverData.players[uid];
             if(!localX[uid]) localX[uid] = sx;
             localX[uid] += (sx + (p.pos*sd) - localX[uid]) * 0.1;
-            const y = 70 + (i*45);
+            const y = 70 + (i*40);
             ctx.beginPath(); ctx.arc(localX[uid], y, 16, 0, Math.PI*2);
             ctx.fillStyle = p.color; ctx.fill();
             if(uid === myUID) { ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke(); }
