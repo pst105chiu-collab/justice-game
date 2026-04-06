@@ -7,27 +7,31 @@
     <style>
         :root { --dark: #121212; --gold: #ffd700; --blue: #3182ce; --red: #e53e3e; --green: #38a169; }
         body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--dark); color: #eee; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .container { background: #1e1e1e; width: 95%; max-width: 1100px; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); margin: 20px; padding: 30px; position: relative; border: 1px solid #333; }
+        .container { background: #1e1e1e; width: 95%; max-width: 1150px; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); margin: 20px; padding: 30px; position: relative; border: 1px solid #333; }
         .page { display: none; flex-direction: column; align-items: center; width: 100%; animation: slideUp 0.4s ease-out; }
         .page.active { display: flex; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* 題目看板風格 */
-        .q-display-board { background: #2d2d2d; border-left: 8px solid var(--gold); padding: 20px; width: 100%; border-radius: 12px; margin-bottom: 20px; box-sizing: border-box; min-height: 80px; }
+        /* 題目看板 */
+        .q-display-board { background: #2d2d2d; border-left: 8px solid var(--gold); padding: 20px; width: 100%; border-radius: 12px; margin-bottom: 20px; box-sizing: border-box; }
         .q-text { font-size: 24px; font-weight: bold; color: var(--gold); }
 
-        .btn { padding: 15px 30px; border-radius: 14px; border: none; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 18px; color: white; margin: 10px; box-shadow: 0 6px 0px rgba(0,0,0,0.2); text-transform: uppercase; }
-        .btn:disabled { background: #444 !important; opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: translateY(4px); }
-        .btn-mode { width: 320px; height: 100px; font-size: 20px; }
+        .btn { padding: 12px 24px; border-radius: 14px; border: none; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 16px; color: white; margin: 5px; box-shadow: 0 4px 0px rgba(0,0,0,0.2); }
+        .btn:disabled { background: #444 !important; opacity: 0.3; cursor: not-allowed; box-shadow: none; }
+        .btn-mode { width: 300px; height: 100px; font-size: 20px; }
         
-        .char-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 15px; width: 100%; }
-        .char-card { background: #2d2d2d; border: 2px solid #444; padding: 15px; border-radius: 18px; cursor: pointer; text-align: center; }
-        
-        /* 編輯器樣式 */
-        .editor-section { background: #2d3748; padding: 15px; border-radius: 12px; margin-top: 15px; width: 100%; text-align: left; }
-        input, textarea { background: #333; color: #fff; padding: 10px; border: 1px solid #444; border-radius: 8px; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
+        /* 教師後台分頁 */
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .tab-btn { background: none; border: none; color: #aaa; cursor: pointer; font-size: 18px; font-weight: bold; padding: 10px; }
+        .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
+        .admin-section { display: none; width: 100%; flex-direction: column; }
+        .admin-section.active { display: flex; }
+
+        .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; width: 100%; max-height: 400px; overflow-y: auto; padding: 10px; background: #2d2d2d; border-radius: 8px; }
+        input, textarea { background: #333; color: #fff; padding: 10px; border: 1px solid #444; border-radius: 8px; margin-bottom: 5px; box-sizing: border-box; }
         
         canvas { background: #222; border-radius: 12px; width: 100%; margin: 20px 0; border: 4px solid #444; }
+        #player-tag { font-size: 18px; padding: 10px 20px; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -35,62 +39,69 @@
 <div class="container">
     <div id="page-home" class="page active">
         <h1>平全不平權？</h1>
+        <div class="slogan">「教育是平等的，但你的起跑點可能在隔壁街。」</div>
         <div style="display:flex; flex-wrap: wrap; justify-content:center; gap: 20px;">
             <button class="btn btn-mode" style="background:var(--blue)" onclick="window.showPage('page-sim-select')">🎭 角色模擬器</button>
             <button class="btn btn-mode" style="background:var(--green)" onclick="window.joinRealMode()">🏗️ 生存大亂鬥</button>
         </div>
-        <button class="btn" style="background:#444; font-size:14px; margin-top:30px;" onclick="window.showPage('page-login')">🔑 命運後台</button>
+        <button class="btn" style="background:#444; font-size:12px; margin-top:40px;" onclick="window.showPage('page-login')">⚙️ 命運掌控中心</button>
     </div>
 
     <div id="page-login" class="page">
-        <h2>管理者驗證</h2>
+        <h2>身份驗證</h2>
         <input type="text" id="admin-user" placeholder="帳號">
         <input type="password" id="admin-pass" placeholder="密碼">
-        <button class="btn" style="background:var(--blue); width:100%" onclick="window.verifyLogin()">登入</button>
-        <button class="btn" style="background:#555; width:100%" onclick="window.showPage('page-home')">返回</button>
+        <button class="btn" style="background:var(--blue); width:280px" onclick="window.verifyLogin()">驗證進入</button>
+        <button class="btn" style="background:#555; width:280px" onclick="window.showPage('page-home')">返回</button>
     </div>
 
     <div id="page-sim-select" class="page">
-        <h2>選擇出生劇本</h2>
-        <div class="char-grid" id="sim-char-list"></div>
+        <h2>選擇您的劇本</h2>
+        <div id="sim-char-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; width: 100%;"></div>
+        <button class="btn" style="background:#555; margin-top:20px" onclick="window.showPage('page-home')">返回</button>
     </div>
 
     <div id="page-game" class="page">
         <div class="q-display-board">
-            <div style="font-size:12px; color:#aaa; margin-bottom:5px;">目前情境投放：</div>
-            <div id="current-q-text" class="q-text">等待導師佈題中...</div>
+            <div id="current-q-text" class="q-text">載入題目中...</div>
         </div>
 
         <div style="display:flex; justify-content: space-between; width:100%; align-items:center;">
-            <div style="font-size:24px; font-weight:900;">關卡：<span id="display-q-num">0</span></div>
-            <div id="player-tag" style="padding: 10px 20px; border-radius:12px; font-weight:bold;">載入中...</div>
+            <div style="font-size:24px; font-weight:900;">題號：【<span id="display-q-num">1</span>】</div>
+            <div id="player-tag" style="font-weight:bold;">連線中...</div>
         </div>
         
         <canvas id="mainCanvas" width="1000" height="420"></canvas>
 
         <div id="teacher-controls" class="page" style="display:none; padding:0;">
-            <div class="editor-section">
-                <b>📝 佈題編輯器：</b>
-                <textarea id="edit-q-text" placeholder="請輸入目前的社會情境題目..."></textarea>
-                <button class="btn" style="background:var(--gold); color:#000; width:100%; margin:0;" onclick="window.dbUpdateQ()">更新題目並換題 ➔</button>
-            </div>
-            
-            <div class="editor-section">
-                <b>👥 角色背景編輯 (模擬模式用)：</b>
-                <div id="char-editor-list"></div>
+            <div class="tab-menu">
+                <button id="tab-q" class="tab-btn active" onclick="window.switchTab('q')">題庫管理 (40題)</button>
+                <button id="tab-c" class="tab-btn" onclick="window.switchTab('c')">角色設定</button>
+                <button id="tab-sys" class="tab-btn" onclick="window.switchTab('sys')">系統控制</button>
             </div>
 
-            <div style="display:flex; gap:10px; width:100%; margin-top:10px;">
-                <button id="pause-btn" class="btn" style="background:#ed8936; flex:1" onclick="window.dbTogglePause()">⏸ 凍結</button>
-                <button class="btn" style="background:var(--red); flex:1" onclick="window.dbReset()">🧨 數據清空</button>
+            <div id="sec-q" class="admin-section active">
+                <p>點擊下方題號，可預覽並將其發布到學生端：</p>
+                <div class="editor-grid" id="q-bank-list"></div>
+                <button class="btn" style="background:var(--gold); color:#000; width:100%; margin-top:10px" onclick="window.dbPushCurrentQ()">發布目前選中題目 ➔</button>
+            </div>
+
+            <div id="sec-c" class="admin-section">
+                <div id="char-editor-container" class="editor-grid" style="grid-template-columns: 1fr;"></div>
+            </div>
+
+            <div id="sec-sys" class="admin-section">
+                <button id="pause-btn" class="btn" style="background:#ed8936; width:100%" onclick="window.dbTogglePause()">⏸ 凍結全體玩家</button>
+                <button class="btn" style="background:var(--red); width:100%" onclick="window.dbReset()">🧨 數據徹底重置 (清空所有人)</button>
             </div>
         </div>
 
         <div id="student-controls" style="margin-top:20px; text-align:center;">
             <div id="move-btns">
-                <button id="btn-back" class="btn" style="background:var(--red); width:160px; height:80px;" onclick="window.dbMove(-1)">◀ 受挫</button>
-                <button id="btn-forward" class="btn" style="background:var(--green); width:160px; height:80px;" onclick="window.dbMove(1)">努力 ▶</button>
+                <button id="btn-back" class="btn" style="background:var(--red); width:160px; height:80px;" onclick="window.dbMove(-1)">◀ 受挫/退後</button>
+                <button id="btn-forward" class="btn" style="background:var(--green); width:160px; height:80px;" onclick="window.dbMove(1)">努力/前進 ▶</button>
             </div>
+            <button id="btn-undo" class="btn" style="background:#555; display:none; width:330px" onclick="window.dbUndo()">↺ 按錯了，重新選擇本題移動</button>
             <p id="move-msg" style="color:var(--gold); font-weight:bold; margin-top:10px;"></p>
         </div>
     </div>
@@ -112,17 +123,23 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, 'equity-game-v-kaohsiung');
+    const gameRef = ref(db, 'equity-game-v-final-pro');
 
-    // 角色與狀態初始化
-    let myUID = localStorage.getItem('equity_uid');
+    let myUID = localStorage.getItem('equity_pro_uid');
     let myRole = null; 
-    let serverData = { q: 0, qText: "", status: 'running', players: {}, configChars: [] };
+    let serverData = { q: 1, questions: {}, status: 'running', players: {}, configChars: [] };
 
-    // --- 全域函數掛載 ---
+    // --- 全域函數 ---
     window.showPage = (id) => {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
+    };
+
+    window.switchTab = (tab) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+        document.getElementById('tab-'+tab).classList.add('active');
+        document.getElementById('sec-'+tab).classList.add('active');
     };
 
     window.verifyLogin = () => {
@@ -132,118 +149,134 @@
             document.getElementById('student-controls').style.display = 'none';
             document.getElementById('player-tag').innerText = "👨‍🏫 管理員後台";
             window.showPage('page-game');
-        } else { alert('身分驗證失敗'); }
+        } else { alert('密碼錯誤'); }
     };
 
-    // 進入模擬模式
     window.joinSimMode = (idx) => {
         const char = serverData.configChars[idx];
         setupPlayer(char.name, char.color, "sim_" + idx);
     };
 
-    // 進入現實模式
     window.joinRealMode = () => {
-        if(myUID && myUID.startsWith('real_')) {
-            setupPlayer(null, null, myUID); // 沿用舊身分
-        } else {
-            const newUID = "real_" + Math.random().toString(36).substr(2, 6);
-            setupPlayer("Player " + Math.floor(Math.random()*100), "#718096", newUID);
-        }
+        if(myUID && myUID.startsWith('real_')) setupPlayer(null, null, myUID);
+        else setupPlayer("Player " + Math.floor(Math.random()*99), "#718096", "real_" + Math.random().toString(36).substr(2, 5));
     };
 
     function setupPlayer(name, color, uid) {
-        myUID = uid;
-        localStorage.setItem('equity_uid', uid);
-        myRole = 'student';
-        
-        // 如果 Firebase 已有資料，優先沿用
-        get(ref(db, `equity-game-v-kaohsiung/players/${uid}`)).then((snap) => {
-            const data = snap.val();
-            const finalName = data?.name || name;
-            const finalColor = data?.color || color;
-            update(ref(db, `equity-game-v-kaohsiung/players/${uid}`), { name: finalName, color: finalColor, lastMovedQ: data?.lastMovedQ || -1 });
-            document.getElementById('player-tag').innerText = finalName;
-            document.getElementById('player-tag').style.background = finalColor;
+        myUID = uid; localStorage.setItem('equity_pro_uid', uid); myRole = 'student';
+        get(ref(db, `equity-game-v-final-pro/players/${uid}`)).then((snap) => {
+            const d = snap.val();
+            update(ref(db, `equity-game-v-final-pro/players/${uid}`), { 
+                name: d?.name || name, color: d?.color || color, 
+                pos: d?.pos || 0, startPosOfQ: d?.pos || 0, lastMovedQ: d?.lastMovedQ || 0 
+            });
+            document.getElementById('player-tag').innerText = d?.name || name;
+            document.getElementById('player-tag').style.background = d?.color || color;
             window.showPage('page-game');
         });
     }
 
-    // --- 管理員操作 ---
-    window.dbUpdateQ = () => {
-        const newText = document.getElementById('edit-q-text').value;
-        update(gameRef, { q: serverData.q + 1, qText: newText });
+    // --- 管理員數據更新 ---
+    window.dbPushCurrentQ = () => {
+        const nextQ = serverData.q + 1;
+        if(nextQ > 40) return alert("已達題庫上限");
+        // 更新所有玩家的「本題起始位置」
+        const updates = { q: nextQ };
+        for(let uid in serverData.players) {
+            updates[`players/${uid}/startPosOfQ`] = serverData.players[uid].pos;
+        }
+        update(gameRef, updates);
     };
 
-    window.dbTogglePause = () => set(ref(db, 'equity-game-v-kaohsiung/status'), serverData.status === 'running' ? 'paused' : 'running');
-    
-    window.dbReset = () => {
-        if(confirm("重設將清空所有玩家與進度，確定嗎？")) {
-            set(gameRef, { q: 0, qText: "等待佈題...", status: 'running', players: {}, 
-                configChars: [
-                    {name: "達嗨", desc: "布農部落的晨光", color: "#3182ce"},
-                    {name: "維恩", desc: "豪宅裡的保姆車", color: "#ecc94b"},
-                    {name: "小明", desc: "平凡的蛋餅人生", color: "#f687b3"},
-                    {name: "小晴", desc: "市場裡的晚餐", color: "#f6ad55"},
-                    {name: "阿諾", desc: "輪椅外的圍牆", color: "#9f7aea"}
-                ]
-            });
-            location.reload();
-        }
+    window.updateQuestionText = (idx) => {
+        const txt = document.getElementById(`q-input-${idx}`).value;
+        set(ref(db, `equity-game-v-final-pro/questions/${idx}`), txt);
     };
 
     window.updateCharConfig = (idx) => {
-        const n = document.getElementById(`edit-char-n-${idx}`).value;
-        const d = document.getElementById(`edit-char-d-${idx}`).value;
-        set(ref(db, `equity-game-v-kaohsiung/configChars/${idx}`), { name: n, desc: d, color: serverData.configChars[idx].color });
+        const n = document.getElementById(`c-n-${idx}`).value;
+        const d = document.getElementById(`c-d-${idx}`).value;
+        set(ref(db, `equity-game-v-final-pro/configChars/${idx}`), { name: n, desc: d, color: serverData.configChars[idx].color });
     };
 
-    // --- 學生移動邏輯 (限一次) ---
+    window.dbTogglePause = () => set(ref(db, 'equity-game-v-final-pro/status'), serverData.status === 'running' ? 'paused' : 'running');
+    
+    window.dbReset = () => {
+        if(!confirm("數據重置後無法恢復，確定嗎？")) return;
+        const qBank = {}; for(let i=1; i<=40; i++) qBank[i] = `這是第 ${i} 題的題目內容，請老師點擊右側修改...`;
+        set(gameRef, { 
+            q: 1, status: 'running', players: {}, questions: qBank,
+            configChars: [
+                {name: "達嗨", desc: "布農部落的晨光", color: "#3182ce"},
+                {name: "維恩", desc: "豪宅裡的保姆車", color: "#ecc94b"},
+                {name: "小明", desc: "平凡的蛋餅人生", color: "#f687b3"},
+                {name: "小晴", desc: "市場裡的晚餐", color: "#f6ad55"},
+                {name: "阿諾", desc: "輪椅外的圍牆", color: "#9f7aea"}
+            ]
+        });
+        location.reload();
+    };
+
+    // --- 學生移動邏輯 (可悔改版) ---
     window.dbMove = (dir) => {
         const p = serverData.players[myUID];
         if(!p || serverData.status === 'paused') return;
-        if(p.lastMovedQ === serverData.q) {
-            alert("本回合你已經做出選擇了！");
-            return;
-        }
-        const newPos = (p.pos || 0) + dir;
-        update(ref(db, `equity-game-v-kaohsiung/players/${myUID}`), { pos: Math.max(0, newPos), lastMovedQ: serverData.q });
+        const newPos = p.startPosOfQ + dir;
+        update(ref(db, `equity-game-v-final-pro/players/${myUID}`), { 
+            pos: Math.max(0, newPos), lastMovedQ: serverData.q 
+        });
     };
 
-    // --- 數據監聽與渲染 ---
-    onValue(gameRef, (snap) => {
-        const data = snap.val(); if(!data) return;
-        serverData = data;
-        serverData.players = data.players || {};
-        serverData.configChars = data.configChars || [];
-        
-        document.getElementById('display-q-num').innerText = data.q;
-        document.getElementById('current-q-text').innerText = data.qText;
-
-        // 更新模擬角色選擇頁
-        const list = document.getElementById('sim-char-list');
-        list.innerHTML = "";
-        serverData.configChars.forEach((c, i) => {
-            list.innerHTML += `<div class="char-card" onclick="window.joinSimMode(${i})"><b style="color:${c.color}">${c.name}</b><br><small>${c.desc}</small></div>`;
+    window.dbUndo = () => {
+        const p = serverData.players[myUID];
+        update(ref(db, `equity-game-v-final-pro/players/${myUID}`), { 
+            pos: p.startPosOfQ, lastMovedQ: 0 
         });
+    };
 
-        // 教師編輯區更新
-        if(myRole === 'teacher') {
-            const edList = document.getElementById('char-editor-list');
-            if(edList.innerHTML === "") {
-                serverData.configChars.forEach((c, i) => {
-                    edList.innerHTML += `<div>${c.name}: <input id="edit-char-n-${i}" value="${c.name}"> <input id="edit-char-d-${i}" value="${c.desc}"> <button onclick="window.updateCharConfig(${i})">保存</button></div>`;
-                });
+    // --- 數據監聽 ---
+    onValue(gameRef, (snap) => {
+        const d = snap.val(); if(!d) return;
+        serverData = d; serverData.players = d.players || {};
+        serverData.questions = d.questions || {};
+        serverData.configChars = d.configChars || [];
+
+        document.getElementById('display-q-num').innerText = d.q;
+        document.getElementById('current-q-text').innerText = serverData.questions[d.q] || "題目未設定";
+
+        // 更新後台題庫列表
+        const qList = document.getElementById('q-bank-list');
+        if(qList.innerHTML === "") {
+            for(let i=1; i<=40; i++) {
+                qList.innerHTML += `<div style="border-bottom:1px solid #444; padding:5px;">題${i}: <input id="q-input-${i}" style="width:70%" value="${serverData.questions[i] || ''}"> <button onclick="window.updateQuestionText(${i})">存</button></div>`;
             }
         }
 
-        // 學生按鈕狀態控管
+        // 更新後台角色列表
+        const cList = document.getElementById('char-editor-container');
+        if(cList.innerHTML === "") {
+            serverData.configChars.forEach((c, i) => {
+                cList.innerHTML += `<div style="margin-bottom:10px;">${c.name}: <input id="c-n-${i}" value="${c.name}"> <input id="c-d-${i}" value="${c.desc}"> <button onclick="window.updateCharConfig(${i})">儲存</button></div>`;
+            });
+        }
+
+        // 更新模擬選擇頁
+        const simList = document.getElementById('sim-char-list');
+        if(simList.innerHTML === "") {
+            serverData.configChars.forEach((c, i) => {
+                simList.innerHTML += `<div class="char-card" onclick="window.joinSimMode(${i})"><b style="color:${c.color}">${c.name}</b><br><small>${c.desc}</small></div>`;
+            });
+        }
+
+        // 學生互動介面控制
         if(myRole === 'student') {
             const p = serverData.players[myUID];
             const hasMoved = p && p.lastMovedQ === serverData.q;
             const isPaused = serverData.status === 'paused';
-            document.getElementById('btn-forward').disabled = hasMoved || isPaused;
-            document.getElementById('btn-back').disabled = hasMoved || isPaused;
-            document.getElementById('move-msg').innerText = hasMoved ? "✅ 本題已完成選擇，等待下一題..." : (isPaused ? "⏸ 導師暫停中" : "⚡ 請做出選擇");
+            document.getElementById('btn-forward').style.display = hasMoved ? "none" : "inline-block";
+            document.getElementById('btn-back').style.display = hasMoved ? "none" : "inline-block";
+            document.getElementById('btn-undo').style.display = (hasMoved && !isPaused) ? "inline-block" : "none";
+            document.getElementById('move-msg').innerText = isPaused ? "⏸ 命運凍結中" : (hasMoved ? "✅ 已完成選擇，等待下一題" : "⚡ 請做出你的生命抉擇");
         }
     });
 
@@ -253,23 +286,21 @@
         ctx.clearRect(0,0,1000,420);
         const sx = 150; const sd = 20;
         ctx.strokeStyle = "rgba(255,255,255,0.1)"; 
-        for(let i=0; i<10; i++) ctx.strokeRect(20, 50+(i*40), 960, 40);
+        for(let i=0; i<12; i++) ctx.strokeRect(20, 50+(i*30), 960, 30);
         ctx.strokeStyle = "#00ff00"; ctx.lineWidth = 4;
         ctx.beginPath(); ctx.moveTo(sx, 40); ctx.lineTo(sx, 400); ctx.stroke();
-        ctx.setLineDash([5,5]); ctx.strokeStyle = "#ffd700";
-        ctx.beginPath(); ctx.moveTo(sx+(40*sd), 40); ctx.lineTo(sx+(40*sd), 400); ctx.stroke();
-        ctx.setLineDash([]);
-        
+        ctx.fillStyle = "#00ff00"; ctx.font = "bold 14px sans-serif"; ctx.fillText("理想起跑線", sx-35, 35);
+
         Object.keys(serverData.players).forEach((uid, i) => {
             const p = serverData.players[uid];
             if(!localX[uid]) localX[uid] = sx;
             localX[uid] += (sx + (p.pos*sd) - localX[uid]) * 0.1;
-            const y = 70 + (i*40);
-            ctx.beginPath(); ctx.arc(localX[uid], y, 16, 0, Math.PI*2);
+            const y = 65 + (i*30);
+            ctx.beginPath(); ctx.arc(localX[uid], y, 12, 0, Math.PI*2);
             ctx.fillStyle = p.color; ctx.fill();
             if(uid === myUID) { ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke(); }
-            ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="bold 12px sans-serif";
-            ctx.fillText(p.name, localX[uid], y-22);
+            ctx.fillStyle="#fff"; ctx.textAlign="left"; ctx.font="10px sans-serif";
+            ctx.fillText(p.name, localX[uid]+18, y+4);
         });
         requestAnimationFrame(render);
     }
