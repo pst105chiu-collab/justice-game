@@ -13,25 +13,28 @@
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* 題目看板 */
-        .q-display-board { background: #2d2d2d; border-left: 8px solid var(--gold); padding: 20px; width: 100%; border-radius: 12px; margin-bottom: 20px; box-sizing: border-box; }
-        .q-text { font-size: 24px; font-weight: bold; color: var(--gold); }
+        .q-display-board { background: #2d2d2d; border-left: 8px solid var(--gold); padding: 20px; width: 100%; border-radius: 12px; margin-bottom: 20px; min-height: 100px; display: flex; align-items: center; }
+        .q-text { font-size: 24px; font-weight: bold; color: var(--gold); line-height: 1.5; }
+        .q-hidden { color: #555; font-style: italic; font-weight: normal; }
 
         .btn { padding: 12px 24px; border-radius: 14px; border: none; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 16px; color: white; margin: 5px; box-shadow: 0 4px 0px rgba(0,0,0,0.2); }
         .btn:disabled { background: #444 !important; opacity: 0.3; cursor: not-allowed; box-shadow: none; }
         .btn-mode { width: 300px; height: 100px; font-size: 20px; }
         
-        /* 教師後台分頁 */
-        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; border-bottom: 1px solid #444; }
         .tab-btn { background: none; border: none; color: #aaa; cursor: pointer; font-size: 18px; font-weight: bold; padding: 10px; }
         .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
         .admin-section { display: none; width: 100%; flex-direction: column; }
         .admin-section.active { display: flex; }
 
-        .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; width: 100%; max-height: 400px; overflow-y: auto; padding: 10px; background: #2d2d2d; border-radius: 8px; }
-        input, textarea { background: #333; color: #fff; padding: 10px; border: 1px solid #444; border-radius: 8px; margin-bottom: 5px; box-sizing: border-box; }
+        .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; width: 100%; max-height: 350px; overflow-y: auto; padding: 10px; background: #2d2d2d; border-radius: 8px; }
+        input, textarea { background: #333; color: #fff; padding: 10px; border: 1px solid #444; border-radius: 10px; width: 100%; box-sizing: border-box; }
         
         canvas { background: #222; border-radius: 12px; width: 100%; margin: 20px 0; border: 4px solid #444; }
         #player-tag { font-size: 18px; padding: 10px 20px; border-radius: 10px; }
+        
+        .move-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .btn-move { width: 160px; height: 85px; font-size: 20px; border: 4px solid #fff; }
     </style>
 </head>
 <body>
@@ -39,7 +42,6 @@
 <div class="container">
     <div id="page-home" class="page active">
         <h1>平全不平權？</h1>
-        <div class="slogan">「教育是平等的，但你的起跑點可能在隔壁街。」</div>
         <div style="display:flex; flex-wrap: wrap; justify-content:center; gap: 20px;">
             <button class="btn btn-mode" style="background:var(--blue)" onclick="window.showPage('page-sim-select')">🎭 角色模擬器</button>
             <button class="btn btn-mode" style="background:var(--green)" onclick="window.joinRealMode()">🏗️ 生存大亂鬥</button>
@@ -48,26 +50,26 @@
     </div>
 
     <div id="page-login" class="page">
-        <h2>身份驗證</h2>
+        <h2>身分驗證</h2>
         <input type="text" id="admin-user" placeholder="帳號">
         <input type="password" id="admin-pass" placeholder="密碼">
-        <button class="btn" style="background:var(--blue); width:280px" onclick="window.verifyLogin()">驗證進入</button>
-        <button class="btn" style="background:#555; width:280px" onclick="window.showPage('page-home')">返回</button>
+        <button class="btn" style="background:var(--blue); width:280px" onclick="window.verifyLogin()">登入</button>
+        <button class="btn" style="background:#555; width:280px" onclick="window.showPage('page-home')">取消</button>
     </div>
 
     <div id="page-sim-select" class="page">
-        <h2>選擇您的劇本</h2>
+        <h2>請選擇您的劇本</h2>
         <div id="sim-char-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; width: 100%;"></div>
         <button class="btn" style="background:#555; margin-top:20px" onclick="window.showPage('page-home')">返回</button>
     </div>
 
     <div id="page-game" class="page">
         <div class="q-display-board">
-            <div id="current-q-text" class="q-text">載入題目中...</div>
+            <div id="current-q-text" class="q-text q-hidden">等待命運規劃師佈題...</div>
         </div>
 
         <div style="display:flex; justify-content: space-between; width:100%; align-items:center;">
-            <div style="font-size:24px; font-weight:900;">題號：【<span id="display-q-num">1</span>】</div>
+            <div style="font-size:24px; font-weight:900;">關卡：【<span id="display-q-num">1</span>】</div>
             <div id="player-tag" style="font-weight:bold;">連線中...</div>
         </div>
         
@@ -75,15 +77,21 @@
 
         <div id="teacher-controls" class="page" style="display:none; padding:0;">
             <div class="tab-menu">
-                <button id="tab-q" class="tab-btn active" onclick="window.switchTab('q')">題庫管理 (40題)</button>
+                <button id="tab-q" class="tab-btn active" onclick="window.switchTab('q')">題庫管理</button>
                 <button id="tab-c" class="tab-btn" onclick="window.switchTab('c')">角色設定</button>
-                <button id="tab-sys" class="tab-btn" onclick="window.switchTab('sys')">系統控制</button>
+                <button id="tab-sys" class="tab-btn" onclick="window.switchTab('sys')">系統設置</button>
             </div>
 
             <div id="sec-q" class="admin-section active">
-                <p>點擊下方題號，可預覽並將其發布到學生端：</p>
+                <div style="background:#333; padding:15px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                    <b>題目切換：</b>
+                    <button class="btn" style="background:#555" onclick="window.dbChangeQ(-1)">◀ 前一題</button>
+                    <span style="font-size:20px; font-weight:bold; color:var(--gold)">第 <span id="admin-q-num">1</span> 題</span>
+                    <button class="btn" style="background:#555" onclick="window.dbChangeQ(1)">下一題 ▶</button>
+                    <button id="reveal-btn" class="btn" style="background:var(--green)" onclick="window.dbToggleReveal(true)">👁️ 揭曉題目</button>
+                    <button id="hide-btn" class="btn" style="background:var(--red)" onclick="window.dbToggleReveal(false)">🔒 隱藏</button>
+                </div>
                 <div class="editor-grid" id="q-bank-list"></div>
-                <button class="btn" style="background:var(--gold); color:#000; width:100%; margin-top:10px" onclick="window.dbPushCurrentQ()">發布目前選中題目 ➔</button>
             </div>
 
             <div id="sec-c" class="admin-section">
@@ -91,17 +99,19 @@
             </div>
 
             <div id="sec-sys" class="admin-section">
-                <button id="pause-btn" class="btn" style="background:#ed8936; width:100%" onclick="window.dbTogglePause()">⏸ 凍結全體玩家</button>
-                <button class="btn" style="background:var(--red); width:100%" onclick="window.dbReset()">🧨 數據徹底重置 (清空所有人)</button>
+                <button id="pause-btn" class="btn" style="background:#ed8936; width:100%" onclick="window.dbTogglePause()">⏸ 暫停操作</button>
+                <button class="btn" style="background:var(--red); width:100%" onclick="window.dbReset()">🧨 數據徹底重置</button>
             </div>
         </div>
 
-        <div id="student-controls" style="margin-top:20px; text-align:center;">
-            <div id="move-btns">
-                <button id="btn-back" class="btn" style="background:var(--red); width:160px; height:80px;" onclick="window.dbMove(-1)">◀ 受挫/退後</button>
-                <button id="btn-forward" class="btn" style="background:var(--green); width:160px; height:80px;" onclick="window.dbMove(1)">努力/前進 ▶</button>
+        <div id="student-controls" style="margin-top:20px; text-align:center; width:100%;">
+            <p id="rule-tip" style="color:#aaa; font-size:14px; margin-bottom:10px;">請依據導師讀出的題目規則進行操作</p>
+            <div id="move-btns" class="move-btns">
+                <button id="btn-back" class="btn btn-move" style="background:var(--red)" onclick="window.dbMove(-1)">◀ 受挫/退後</button>
+                <button id="btn-stay" class="btn btn-move" style="background:#555" onclick="window.dbMove(0)">保持原地</button>
+                <button id="btn-forward" class="btn btn-move" style="background:var(--green)" onclick="window.dbMove(1)">努力/前進 ▶</button>
             </div>
-            <button id="btn-undo" class="btn" style="background:#555; display:none; width:330px" onclick="window.dbUndo()">↺ 按錯了，重新選擇本題移動</button>
+            <button id="btn-undo" class="btn" style="background:#444; display:none; width:80%; margin-top:10px;" onclick="window.dbUndo()">↺ 重新考慮 (本題限改一次)</button>
             <p id="move-msg" style="color:var(--gold); font-weight:bold; margin-top:10px;"></p>
         </div>
     </div>
@@ -123,13 +133,12 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, 'equity-game-v-final-pro');
+    const gameRef = ref(db, 'equity-game-v-2026-pro-final');
 
-    let myUID = localStorage.getItem('equity_pro_uid');
+    let myUID = localStorage.getItem('equity_2026_pro_final_uid');
     let myRole = null; 
-    let serverData = { q: 1, questions: {}, status: 'running', players: {}, configChars: [] };
+    let serverData = { q: 1, isRevealed: false, status: 'running', players: {}, questions: {}, configChars: [] };
 
-    // --- 全域函數 ---
     window.showPage = (id) => {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -149,7 +158,7 @@
             document.getElementById('student-controls').style.display = 'none';
             document.getElementById('player-tag').innerText = "👨‍🏫 管理員後台";
             window.showPage('page-game');
-        } else { alert('密碼錯誤'); }
+        } else { alert('驗證失敗'); }
     };
 
     window.joinSimMode = (idx) => {
@@ -163,10 +172,10 @@
     };
 
     function setupPlayer(name, color, uid) {
-        myUID = uid; localStorage.setItem('equity_pro_uid', uid); myRole = 'student';
-        get(ref(db, `equity-game-v-final-pro/players/${uid}`)).then((snap) => {
+        myUID = uid; localStorage.setItem('equity_2026_pro_final_uid', uid); myRole = 'student';
+        get(ref(db, `equity-game-v-2026-pro-final/players/${uid}`)).then((snap) => {
             const d = snap.val();
-            update(ref(db, `equity-game-v-final-pro/players/${uid}`), { 
+            update(ref(db, `equity-game-v-2026-pro-final/players/${uid}`), { 
                 name: d?.name || name, color: d?.color || color, 
                 pos: d?.pos || 0, startPosOfQ: d?.pos || 0, lastMovedQ: d?.lastMovedQ || 0 
             });
@@ -176,36 +185,34 @@
         });
     }
 
-    // --- 管理員數據更新 ---
-    window.dbPushCurrentQ = () => {
-        const nextQ = serverData.q + 1;
-        if(nextQ > 40) return alert("已達題庫上限");
-        // 更新所有玩家的「本題起始位置」
-        const updates = { q: nextQ };
-        for(let uid in serverData.players) {
-            updates[`players/${uid}/startPosOfQ`] = serverData.players[uid].pos;
-        }
+    window.dbChangeQ = (dir) => {
+        const nextQ = serverData.q + dir;
+        if(nextQ < 1 || nextQ > 40) return;
+        const updates = { q: nextQ, isRevealed: false };
+        for(let uid in serverData.players) { updates[`players/${uid}/startPosOfQ`] = serverData.players[uid].pos; }
         update(gameRef, updates);
     };
 
+    window.dbToggleReveal = (show) => set(ref(db, 'equity-game-v-2026-pro-final/isRevealed'), show);
+
     window.updateQuestionText = (idx) => {
         const txt = document.getElementById(`q-input-${idx}`).value;
-        set(ref(db, `equity-game-v-final-pro/questions/${idx}`), txt);
+        set(ref(db, `equity-game-v-2026-pro-final/questions/${idx}`), txt);
     };
 
     window.updateCharConfig = (idx) => {
         const n = document.getElementById(`c-n-${idx}`).value;
         const d = document.getElementById(`c-d-${idx}`).value;
-        set(ref(db, `equity-game-v-final-pro/configChars/${idx}`), { name: n, desc: d, color: serverData.configChars[idx].color });
+        set(ref(db, `equity-game-v-2026-pro-final/configChars/${idx}`), { name: n, desc: d, color: serverData.configChars[idx].color });
     };
 
-    window.dbTogglePause = () => set(ref(db, 'equity-game-v-final-pro/status'), serverData.status === 'running' ? 'paused' : 'running');
+    window.dbTogglePause = () => set(ref(db, 'equity-game-v-2026-pro-final/status'), serverData.status === 'running' ? 'paused' : 'running');
     
     window.dbReset = () => {
         if(!confirm("數據重置後無法恢復，確定嗎？")) return;
-        const qBank = {}; for(let i=1; i<=40; i++) qBank[i] = `這是第 ${i} 題的題目內容，請老師點擊右側修改...`;
+        const qBank = {}; for(let i=1; i<=40; i++) qBank[i] = `情境題目第 ${i} 題...`;
         set(gameRef, { 
-            q: 1, status: 'running', players: {}, questions: qBank,
+            q: 1, isRevealed: false, status: 'running', players: {}, questions: qBank,
             configChars: [
                 {name: "達嗨", desc: "布農部落的晨光", color: "#3182ce"},
                 {name: "維恩", desc: "豪宅裡的保姆車", color: "#ecc94b"},
@@ -214,27 +221,27 @@
                 {name: "阿諾", desc: "輪椅外的圍牆", color: "#9f7aea"}
             ]
         });
-        location.reload();
+        alert("重置完成");
     };
 
-    // --- 學生移動邏輯 (可悔改版) ---
+    // --- 學生移動邏輯：包含原地 ---
     window.dbMove = (dir) => {
         const p = serverData.players[myUID];
         if(!p || serverData.status === 'paused') return;
+        // 如果 dir 為 0，則位置維持 startPosOfQ
         const newPos = p.startPosOfQ + dir;
-        update(ref(db, `equity-game-v-final-pro/players/${myUID}`), { 
+        update(ref(db, `equity-game-v-2026-pro-final/players/${myUID}`), { 
             pos: Math.max(0, newPos), lastMovedQ: serverData.q 
         });
     };
 
     window.dbUndo = () => {
         const p = serverData.players[myUID];
-        update(ref(db, `equity-game-v-final-pro/players/${myUID}`), { 
+        update(ref(db, `equity-game-v-2026-pro-final/players/${myUID}`), { 
             pos: p.startPosOfQ, lastMovedQ: 0 
         });
     };
 
-    // --- 數據監聽 ---
     onValue(gameRef, (snap) => {
         const d = snap.val(); if(!d) return;
         serverData = d; serverData.players = d.players || {};
@@ -242,25 +249,34 @@
         serverData.configChars = d.configChars || [];
 
         document.getElementById('display-q-num').innerText = d.q;
-        document.getElementById('current-q-text').innerText = serverData.questions[d.q] || "題目未設定";
+        document.getElementById('admin-q-num').innerText = d.q;
+        
+        const qBox = document.getElementById('current-q-text');
+        if(d.isRevealed) {
+            qBox.innerText = serverData.questions[d.q] || "題目編輯中...";
+            qBox.classList.remove('q-hidden');
+        } else {
+            qBox.innerText = "⏳ 聽取導師佈題中...";
+            qBox.classList.add('q-hidden');
+        }
 
-        // 更新後台題庫列表
-        const qList = document.getElementById('q-bank-list');
-        if(qList.innerHTML === "") {
-            for(let i=1; i<=40; i++) {
-                qList.innerHTML += `<div style="border-bottom:1px solid #444; padding:5px;">題${i}: <input id="q-input-${i}" style="width:70%" value="${serverData.questions[i] || ''}"> <button onclick="window.updateQuestionText(${i})">存</button></div>`;
+        if(myRole === 'teacher') {
+            document.getElementById('reveal-btn').style.border = d.isRevealed ? "4px solid white" : "none";
+            document.getElementById('hide-btn').style.border = !d.isRevealed ? "4px solid white" : "none";
+            const qList = document.getElementById('q-bank-list');
+            if(qList.innerHTML === "") {
+                for(let i=1; i<=40; i++) {
+                    qList.innerHTML += `<div style="padding:5px;">題${i}: <input id="q-input-${i}" style="width:70%" value="${serverData.questions[i] || ''}"> <button onclick="window.updateQuestionText(${i})">存</button></div>`;
+                }
+            }
+            const cList = document.getElementById('char-editor-container');
+            if(cList.innerHTML === "") {
+                serverData.configChars.forEach((c, i) => {
+                    cList.innerHTML += `<div>${c.name}: <input id="c-n-${i}" value="${c.name}"> <input id="c-d-${i}" value="${c.desc}"> <button onclick="window.updateCharConfig(${i})">存</button></div>`;
+                });
             }
         }
 
-        // 更新後台角色列表
-        const cList = document.getElementById('char-editor-container');
-        if(cList.innerHTML === "") {
-            serverData.configChars.forEach((c, i) => {
-                cList.innerHTML += `<div style="margin-bottom:10px;">${c.name}: <input id="c-n-${i}" value="${c.name}"> <input id="c-d-${i}" value="${c.desc}"> <button onclick="window.updateCharConfig(${i})">儲存</button></div>`;
-            });
-        }
-
-        // 更新模擬選擇頁
         const simList = document.getElementById('sim-char-list');
         if(simList.innerHTML === "") {
             serverData.configChars.forEach((c, i) => {
@@ -268,15 +284,13 @@
             });
         }
 
-        // 學生互動介面控制
         if(myRole === 'student') {
             const p = serverData.players[myUID];
             const hasMoved = p && p.lastMovedQ === serverData.q;
             const isPaused = serverData.status === 'paused';
-            document.getElementById('btn-forward').style.display = hasMoved ? "none" : "inline-block";
-            document.getElementById('btn-back').style.display = hasMoved ? "none" : "inline-block";
+            document.getElementById('move-btns').style.display = hasMoved ? "none" : "flex";
             document.getElementById('btn-undo').style.display = (hasMoved && !isPaused) ? "inline-block" : "none";
-            document.getElementById('move-msg').innerText = isPaused ? "⏸ 命運凍結中" : (hasMoved ? "✅ 已完成選擇，等待下一題" : "⚡ 請做出你的生命抉擇");
+            document.getElementById('move-msg').innerText = isPaused ? "⏸ 命運凍結中" : (hasMoved ? "✅ 已完成抉擇" : (d.isRevealed ? "⚡ 請點擊按鈕做出選擇" : "💭 聽導師口述題目..."));
         }
     });
 
@@ -299,7 +313,7 @@
             ctx.beginPath(); ctx.arc(localX[uid], y, 12, 0, Math.PI*2);
             ctx.fillStyle = p.color; ctx.fill();
             if(uid === myUID) { ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke(); }
-            ctx.fillStyle="#fff"; ctx.textAlign="left"; ctx.font="10px sans-serif";
+            ctx.fillStyle="#fff"; ctx.textAlign="left"; ctx.font="11px sans-serif";
             ctx.fillText(p.name, localX[uid]+18, y+4);
         });
         requestAnimationFrame(render);
