@@ -3,38 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>平權不平權？— 社會生存模擬器</title>
+    <title>平權不平權？— 社會地位馬拉松</title>
     <style>
-        :root { --dark: #121212; --gold: #ffd700; --blue: #3182ce; --red: #e53e3e; --green: #38a169; }
-        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--dark); color: #eee; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .container { background: #1e1e1e; width: 95%; max-width: 1150px; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); margin: 20px; padding: 30px; position: relative; border: 1px solid #333; }
+        :root { --dark: #0f172a; --gold: #ffb700; --blue: #3b82f6; --red: #ef4444; --green: #22c55e; --panel: #1e293b; }
+        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--dark); color: #f8fafc; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { background: #1e293b; width: 95%; max-width: 1200px; border-radius: 28px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); margin: 20px; padding: 30px; border: 1px solid #334155; }
         .page { display: none; flex-direction: column; align-items: center; width: 100%; animation: slideUp 0.4s ease-out; }
         .page.active { display: flex; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* 題目看板 */
-        .q-display-board { background: #2d2d2d; border-left: 8px solid var(--gold); padding: 20px; width: 100%; border-radius: 12px; margin-bottom: 20px; min-height: 100px; display: flex; align-items: center; }
-        .q-text { font-size: 24px; font-weight: bold; color: var(--gold); line-height: 1.5; }
-        .q-hidden { color: #555; font-style: italic; font-weight: normal; }
+        /* 諷刺感標題 */
+        h1 { font-size: 3.5rem; color: var(--gold); margin: 10px 0; text-shadow: 3px 3px 0 #000; letter-spacing: -2px; }
+        .slogan { font-style: italic; color: #94a3b8; margin-bottom: 30px; font-size: 1.1rem; }
 
-        .btn { padding: 12px 24px; border-radius: 14px; border: none; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 16px; color: white; margin: 5px; box-shadow: 0 4px 0px rgba(0,0,0,0.2); }
-        .btn:disabled { background: #444 !important; opacity: 0.3; cursor: not-allowed; box-shadow: none; }
-        .btn-mode { width: 300px; height: 100px; font-size: 20px; }
-        
-        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; border-bottom: 1px solid #444; }
-        .tab-btn { background: none; border: none; color: #aaa; cursor: pointer; font-size: 18px; font-weight: bold; padding: 10px; }
-        .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); }
-        .admin-section { display: none; width: 100%; flex-direction: column; }
-        .admin-section.active { display: flex; }
+        /* 看板 */
+        .q-display-board { background: #0f172a; border-left: 10px solid var(--gold); padding: 25px; width: 100%; border-radius: 15px; margin-bottom: 25px; box-sizing: border-box; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
+        .q-text { font-size: 26px; font-weight: bold; color: var(--gold); line-height: 1.6; }
 
-        .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; width: 100%; max-height: 350px; overflow-y: auto; padding: 10px; background: #2d2d2d; border-radius: 8px; }
-        input, textarea { background: #333; color: #fff; padding: 10px; border: 1px solid #444; border-radius: 10px; width: 100%; box-sizing: border-box; }
+        /* 按鈕系統 */
+        .btn { padding: 14px 28px; border-radius: 16px; border: none; font-weight: 900; cursor: pointer; transition: 0.2s; font-size: 16px; color: white; margin: 6px; box-shadow: 0 5px 0 rgba(0,0,0,0.3); }
+        .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+        .btn:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
+        .btn-mode { width: 320px; height: 110px; font-size: 22px; border: 4px solid rgba(255,255,255,0.1); }
         
-        canvas { background: #222; border-radius: 12px; width: 100%; margin: 20px 0; border: 4px solid #444; }
-        #player-tag { font-size: 18px; padding: 10px 20px; border-radius: 10px; }
+        /* 教師分組編輯器 */
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; border-bottom: 2px solid #334155; }
+        .tab-btn { background: none; border: none; color: #64748b; cursor: pointer; font-size: 18px; font-weight: bold; padding: 12px; }
+        .tab-btn.active { color: var(--gold); border-bottom: 4px solid var(--gold); }
+        .admin-section { display: none; width: 100%; }
+        .admin-section.active { display: flex; flex-direction: column; }
+
+        .group-box { background: #334155; border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #475569; }
+        .group-title { color: var(--gold); font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #475569; padding-bottom: 5px; }
+        .editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
+        input, textarea { background: #0f172a; color: #fff; padding: 12px; border: 1px solid #475569; border-radius: 10px; width: 100%; box-sizing: border-box; font-size: 14px; }
         
-        .move-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .btn-move { width: 160px; height: 85px; font-size: 20px; border: 4px solid #fff; }
+        canvas { background: #1a1a1a; border-radius: 15px; width: 100%; border: 6px solid #334155; }
+        .move-btns { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+        .btn-move { width: 170px; height: 90px; font-size: 22px; border: 5px solid rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
@@ -42,56 +48,59 @@
 <div class="container">
     <div id="page-home" class="page active">
         <h1>平權不平權？</h1>
+        <div class="slogan">「我們都在跑馬拉松，只是有人是坐保姆車，有人是光腳。」</div>
         <div style="display:flex; flex-wrap: wrap; justify-content:center; gap: 20px;">
-            <button class="btn btn-mode" style="background:var(--blue)" onclick="window.showPage('page-sim-select')">🎭 角色模擬器</button>
-            <button class="btn btn-mode" style="background:var(--green)" onclick="window.joinRealMode()">🏗️ 生存大亂鬥</button>
+            <button class="btn btn-mode" style="background:var(--blue)" onclick="window.showPage('page-sim-select')">🎭 命運抽籤<br><small style="font-weight:normal; font-size:12px;">(選擇內建劇本角色)</small></button>
+            <button class="btn btn-mode" style="background:var(--green)" onclick="window.joinRealMode()">🏗️ 隨機投胎<br><small style="font-weight:normal; font-size:12px;">(產生匿名玩家分身)</small></button>
         </div>
-        <button class="btn" style="background:#444; font-size:12px; margin-top:40px;" onclick="window.showPage('page-login')">⚙️ 命運掌控中心</button>
+        <button class="btn" style="background:#334155; font-size:12px; margin-top:50px; opacity: 0.6;" onclick="window.showPage('page-login')">🛡️ 社會控制後台</button>
     </div>
 
     <div id="page-login" class="page">
-        <h2>身分驗證</h2>
-        <input type="text" id="admin-user" placeholder="帳號">
-        <input type="password" id="admin-pass" placeholder="密碼">
-        <button class="btn" style="background:var(--blue); width:280px" onclick="window.verifyLogin()">登入</button>
-        <button class="btn" style="background:#555; width:280px" onclick="window.showPage('page-home')">取消</button>
+        <h2>特權登入</h2>
+        <input type="text" id="admin-user" placeholder="管理員帳號">
+        <input type="password" id="admin-pass" placeholder="權限密碼">
+        <button class="btn" style="background:var(--blue); width:300px" onclick="window.verifyLogin()">確認進入</button>
+        <button class="btn" style="background:#475569; width:300px" onclick="window.showPage('page-home')">放棄主宰</button>
     </div>
 
     <div id="page-sim-select" class="page">
-        <h2>請選擇您的劇本</h2>
-        <div id="sim-char-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; width: 100%;"></div>
-        <button class="btn" style="background:#555; margin-top:20px" onclick="window.showPage('page-home')">返回</button>
+        <h2>請領取您的「人生劇本」</h2>
+        <div id="sim-char-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; width: 100%;"></div>
+        <button class="btn" style="background:#475569; margin-top:30px" onclick="window.showPage('page-home')">我不想玩了</button>
     </div>
 
     <div id="page-game" class="page">
         <div class="q-display-board">
-            <div id="current-q-text" class="q-text q-hidden">等待命運規劃師佈題...</div>
+            <div id="current-q-text" class="q-text q-hidden">🔒 社會情境尚在封存中，請聆聽導師引導...</div>
         </div>
 
         <div style="display:flex; justify-content: space-between; width:100%; align-items:center;">
-            <div style="font-size:24px; font-weight:900;">關卡：【<span id="display-q-num">1</span>】</div>
-            <div id="player-tag" style="font-weight:bold;">連線中...</div>
+            <div style="font-size:26px; font-weight:900;">社會進程：【<span id="display-q-num">1</span>】</div>
+            <div id="player-tag" style="font-weight:bold; padding: 10px 20px; border-radius:12px; border: 2px solid white;">身份確認中</div>
         </div>
         
         <canvas id="mainCanvas" width="1000" height="420"></canvas>
 
         <div id="teacher-controls" class="page" style="display:none; padding:0;">
             <div class="tab-menu">
-                <button id="tab-q" class="tab-btn active" onclick="window.switchTab('q')">題庫管理</button>
+                <button id="tab-q" class="tab-btn active" onclick="window.switchTab('q')">五組題庫編輯</button>
                 <button id="tab-c" class="tab-btn" onclick="window.switchTab('c')">角色設定</button>
-                <button id="tab-sys" class="tab-btn" onclick="window.switchTab('sys')">系統設置</button>
+                <button id="tab-sys" class="tab-btn" onclick="window.switchTab('sys')">終極權限</button>
             </div>
 
             <div id="sec-q" class="admin-section active">
-                <div style="background:#333; padding:15px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
-                    <b>題目切換：</b>
-                    <button class="btn" style="background:#555" onclick="window.dbChangeQ(-1)">◀ 前一題</button>
-                    <span style="font-size:20px; font-weight:bold; color:var(--gold)">第 <span id="admin-q-num">1</span> 題</span>
-                    <button class="btn" style="background:#555" onclick="window.dbChangeQ(1)">下一題 ▶</button>
-                    <button id="reveal-btn" class="btn" style="background:var(--green)" onclick="window.dbToggleReveal(true)">👁️ 揭曉題目</button>
-                    <button id="hide-btn" class="btn" style="background:var(--red)" onclick="window.dbToggleReveal(false)">🔒 隱藏</button>
+                <div style="background:#0f172a; padding:20px; border-radius:15px; margin-bottom:20px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <b>佈題導航：</b>
+                    <button class="btn" style="background:#475569" onclick="window.dbChangeQ(-1)">◀ 上一題</button>
+                    <span style="font-size:24px; color:var(--gold); font-weight:bold;">題號 <span id="admin-q-num">1</span></span>
+                    <button class="btn" style="background:#475569" onclick="window.dbChangeQ(1)">下一題 ▶</button>
+                    <button id="reveal-btn" class="btn" style="background:var(--green)" onclick="window.dbToggleReveal(true)">👁️ 讓學生看題目</button>
+                    <button id="hide-btn" class="btn" style="background:var(--red)" onclick="window.dbToggleReveal(false)">🔒 隱藏題目</button>
                 </div>
-                <div class="editor-grid" id="q-bank-list"></div>
+                
+                <div id="q-groups-container" style="max-height: 400px; overflow-y: auto;">
+                    </div>
             </div>
 
             <div id="sec-c" class="admin-section">
@@ -99,20 +108,22 @@
             </div>
 
             <div id="sec-sys" class="admin-section">
-                <button id="pause-btn" class="btn" style="background:#ed8936; width:100%" onclick="window.dbTogglePause()">⏸ 暫停操作</button>
-                <button class="btn" style="background:var(--red); width:100%" onclick="window.dbReset()">🧨 數據徹底重置</button>
+                <button id="pause-btn-admin" class="btn" style="background:#f59e0b; width:100%; height:80px; font-size:24px;" onclick="window.dbTogglePause()">⏸ 凍結全體玩家 (Pause)</button>
+                <button class="btn" style="background:var(--red); width:100%; margin-top:20px;" onclick="window.dbReset()">🧨 數據大清洗 (完全重置)</button>
             </div>
         </div>
 
-        <div id="student-controls" style="margin-top:20px; text-align:center; width:100%;">
-            <p id="rule-tip" style="color:#aaa; font-size:14px; margin-bottom:10px;">請依據導師讀出的題目規則進行操作</p>
-            <div id="move-btns" class="move-btns">
-                <button id="btn-back" class="btn btn-move" style="background:var(--red)" onclick="window.dbMove(-1)">◀ 受挫/退後</button>
-                <button id="btn-stay" class="btn btn-move" style="background:#555" onclick="window.dbMove(0)">保持原地</button>
-                <button id="btn-forward" class="btn btn-move" style="background:var(--green)" onclick="window.dbMove(1)">努力/前進 ▶</button>
+        <div id="student-controls" style="margin-top:20px; text-align:center; width: 100%;">
+            <p id="lock-msg" style="color:var(--red); font-size: 24px; font-weight:900; background:white; padding:15px; border-radius:12px; display:none; border: 4px solid var(--red);">⏸ 社會已暫停！請專心聽講 ⏸</p>
+            <div id="move-group">
+                <div class="move-btns">
+                    <button id="btn-back" class="btn btn-move" style="background:var(--red)" onclick="window.dbMove(-1)">◀ 退後一步</button>
+                    <button id="btn-stay" class="btn btn-move" style="background:#64748b" onclick="window.dbMove(0)">留在原地</button>
+                    <button id="btn-forward" class="btn btn-move" style="background:var(--green)" onclick="window.dbMove(1)">向前一步 ▶</button>
+                </div>
+                <button id="btn-undo" class="btn" style="background:#334155; width:80%; margin-top:15px; display:none;" onclick="window.dbUndo()">↺ 按錯了？重新選擇</button>
             </div>
-            <button id="btn-undo" class="btn" style="background:#444; display:none; width:80%; margin-top:10px;" onclick="window.dbUndo()">↺ 重新考慮 (本題限改一次)</button>
-            <p id="move-msg" style="color:var(--gold); font-weight:bold; margin-top:10px;"></p>
+            <p id="move-status-msg" style="margin-top:15px; color:var(--gold); font-weight:bold; font-size:18px;"></p>
         </div>
     </div>
 </div>
@@ -133,12 +144,13 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const gameRef = ref(db, 'equity-game-v-2026-pro-final');
+    const gameRef = ref(db, 'equity-game-pro-v3');
 
-    let myUID = localStorage.getItem('equity_2026_pro_final_uid');
+    let myUID = localStorage.getItem('equity_pro_v3_uid');
     let myRole = null; 
     let serverData = { q: 1, isRevealed: false, status: 'running', players: {}, questions: {}, configChars: [] };
 
+    // --- 掛載全域函數 ---
     window.showPage = (id) => {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -156,9 +168,9 @@
             myRole = 'teacher';
             document.getElementById('teacher-controls').style.display = 'flex';
             document.getElementById('student-controls').style.display = 'none';
-            document.getElementById('player-tag').innerText = "👨‍🏫 管理員後台";
+            document.getElementById('player-tag').innerText = "👨‍🏫 命運規劃師";
             window.showPage('page-game');
-        } else { alert('驗證失敗'); }
+        } else { alert('身分不符，無法進入控制室。'); }
     };
 
     window.joinSimMode = (idx) => {
@@ -168,80 +180,72 @@
 
     window.joinRealMode = () => {
         if(myUID && myUID.startsWith('real_')) setupPlayer(null, null, myUID);
-        else setupPlayer("Player " + Math.floor(Math.random()*99), "#718096", "real_" + Math.random().toString(36).substr(2, 5));
+        else setupPlayer("P-" + Math.floor(Math.random()*99), "#94a3b8", "real_" + Math.random().toString(36).substr(2, 5));
     };
 
     function setupPlayer(name, color, uid) {
-        myUID = uid; localStorage.setItem('equity_2026_pro_final_uid', uid); myRole = 'student';
-        get(ref(db, `equity-game-v-2026-pro-final/players/${uid}`)).then((snap) => {
+        myUID = uid; localStorage.setItem('equity_pro_v3_uid', uid); myRole = 'student';
+        get(ref(db, `equity-game-pro-v3/players/${uid}`)).then((snap) => {
             const d = snap.val();
-            update(ref(db, `equity-game-v-2026-pro-final/players/${uid}`), { 
+            update(ref(db, `equity-game-pro-v3/players/${uid}`), { 
                 name: d?.name || name, color: d?.color || color, 
                 pos: d?.pos || 0, startPosOfQ: d?.pos || 0, lastMovedQ: d?.lastMovedQ || 0 
             });
-            document.getElementById('player-tag').innerText = d?.name || name;
+            document.getElementById('player-tag').innerText = "角色：" + (d?.name || name);
             document.getElementById('player-tag').style.background = d?.color || color;
             window.showPage('page-game');
         });
     }
 
+    // --- 管理功能 ---
     window.dbChangeQ = (dir) => {
         const nextQ = serverData.q + dir;
-        if(nextQ < 1 || nextQ > 40) return;
+        if(nextQ < 1 || nextQ > 50) return;
         const updates = { q: nextQ, isRevealed: false };
         for(let uid in serverData.players) { updates[`players/${uid}/startPosOfQ`] = serverData.players[uid].pos; }
         update(gameRef, updates);
     };
 
-    window.dbToggleReveal = (show) => set(ref(db, 'equity-game-v-2026-pro-final/isRevealed'), show);
+    window.dbToggleReveal = (show) => set(ref(db, 'equity-game-pro-v3/isRevealed'), show);
+    
+    window.dbTogglePause = () => set(ref(db, 'equity-game-pro-v3/status'), serverData.status === 'running' ? 'paused' : 'running');
 
     window.updateQuestionText = (idx) => {
         const txt = document.getElementById(`q-input-${idx}`).value;
-        set(ref(db, `equity-game-v-2026-pro-final/questions/${idx}`), txt);
+        set(ref(db, `equity-game-pro-v3/questions/${idx}`), txt);
     };
 
-    window.updateCharConfig = (idx) => {
-        const n = document.getElementById(`c-n-${idx}`).value;
-        const d = document.getElementById(`c-d-${idx}`).value;
-        set(ref(db, `equity-game-v-2026-pro-final/configChars/${idx}`), { name: n, desc: d, color: serverData.configChars[idx].color });
-    };
-
-    window.dbTogglePause = () => set(ref(db, 'equity-game-v-2026-pro-final/status'), serverData.status === 'running' ? 'paused' : 'running');
-    
     window.dbReset = () => {
-        if(!confirm("數據重置後無法恢復，確定嗎？")) return;
-        const qBank = {}; for(let i=1; i<=40; i++) qBank[i] = `情境題目第 ${i} 題...`;
+        if(!confirm("這將清除所有人的進度與題目，確定嗎？")) return;
+        const qBank = {}; for(let i=1; i<=50; i++) qBank[i] = `情境第 ${i} 題內容...`;
         set(gameRef, { 
             q: 1, isRevealed: false, status: 'running', players: {}, questions: qBank,
             configChars: [
-                {name: "達嗨", desc: "布農部落的晨光", color: "#3182ce"},
-                {name: "維恩", desc: "豪宅裡的保姆車", color: "#ecc94b"},
-                {name: "小明", desc: "平凡的蛋餅人生", color: "#f687b3"},
-                {name: "小晴", desc: "市場裡的晚餐", color: "#f6ad55"},
-                {name: "阿諾", desc: "輪椅外的圍牆", color: "#9f7aea"}
+                {name: "達嗨", desc: "布農部落的晨光", color: "#3b82f6"},
+                {name: "維恩", desc: "豪宅裡的保姆車", color: "#fbbf24"},
+                {name: "小明", desc: "平凡的蛋餅人生", color: "#f472b6"},
+                {name: "小晴", desc: "市場裡的晚餐", color: "#fb923c"},
+                {name: "阿諾", desc: "輪椅外的圍牆", color: "#a78bfa"}
             ]
         });
-        alert("重置完成");
+        alert("重置完成，數據已歸零。");
     };
 
-    // --- 學生移動邏輯：包含原地 ---
+    // --- 移動邏輯 ---
     window.dbMove = (dir) => {
         const p = serverData.players[myUID];
         if(!p || serverData.status === 'paused') return;
-        // 如果 dir 為 0，則位置維持 startPosOfQ
-        const newPos = p.startPosOfQ + dir;
-        update(ref(db, `equity-game-v-2026-pro-final/players/${myUID}`), { 
-            pos: Math.max(0, newPos), lastMovedQ: serverData.q 
+        update(ref(db, `equity-game-pro-v3/players/${myUID}`), { 
+            pos: Math.max(0, p.startPosOfQ + dir), lastMovedQ: serverData.q 
         });
     };
 
     window.dbUndo = () => {
         const p = serverData.players[myUID];
-        update(ref(db, `equity-game-v-2026-pro-final/players/${myUID}`), { 
-            pos: p.startPosOfQ, lastMovedQ: 0 
-        });
+        update(ref(db, `equity-game-pro-v3/players/${myUID}`), { pos: p.startPosOfQ, lastMovedQ: 0 });
     };
 
+    // --- 資料同步與產生編輯器 ---
     onValue(gameRef, (snap) => {
         const d = snap.val(); if(!d) return;
         serverData = d; serverData.players = d.players || {};
@@ -251,46 +255,47 @@
         document.getElementById('display-q-num').innerText = d.q;
         document.getElementById('admin-q-num').innerText = d.q;
         
+        // 學生顯示
         const qBox = document.getElementById('current-q-text');
         if(d.isRevealed) {
-            qBox.innerText = serverData.questions[d.q] || "題目編輯中...";
+            qBox.innerText = serverData.questions[d.q] || "尚未設定題目";
             qBox.classList.remove('q-hidden');
         } else {
-            qBox.innerText = "⏳ 聽取導師佈題中...";
+            qBox.innerText = "🔒 聽取導師佈題揭曉中...";
             qBox.classList.add('q-hidden');
         }
 
         if(myRole === 'teacher') {
             document.getElementById('reveal-btn').style.border = d.isRevealed ? "4px solid white" : "none";
             document.getElementById('hide-btn').style.border = !d.isRevealed ? "4px solid white" : "none";
-            const qList = document.getElementById('q-bank-list');
-            if(qList.innerHTML === "") {
-                for(let i=1; i<=40; i++) {
-                    qList.innerHTML += `<div style="padding:5px;">題${i}: <input id="q-input-${i}" style="width:70%" value="${serverData.questions[i] || ''}"> <button onclick="window.updateQuestionText(${i})">存</button></div>`;
+            
+            // 產生 5 組題庫編輯器
+            const qContainer = document.getElementById('q-groups-container');
+            if(qContainer.innerHTML === "") {
+                const groupNames = ["第一組：起始資源", "第二組：教育機會", "第三組：健康醫療", "第四組：社會網絡", "第五組：終極競爭"];
+                for(let g=0; g<5; g++){
+                    let groupHTML = `<div class="group-box"><div class="group-title">${groupNames[g]} (10格)</div><div class="editor-grid">`;
+                    for(let i=1; i<=10; i++) {
+                        let qIdx = g*10 + i;
+                        groupHTML += `<div>${qIdx}. <input id="q-input-${qIdx}" style="width:70%" value="${serverData.questions[qIdx] || ''}"> <button onclick="window.updateQuestionText(${qIdx})">存</button></div>`;
+                    }
+                    groupHTML += `</div></div>`;
+                    qContainer.innerHTML += groupHTML;
                 }
             }
-            const cList = document.getElementById('char-editor-container');
-            if(cList.innerHTML === "") {
-                serverData.configChars.forEach((c, i) => {
-                    cList.innerHTML += `<div>${c.name}: <input id="c-n-${i}" value="${c.name}"> <input id="c-d-${i}" value="${c.desc}"> <button onclick="window.updateCharConfig(${i})">存</button></div>`;
-                });
-            }
         }
 
-        const simList = document.getElementById('sim-char-list');
-        if(simList.innerHTML === "") {
-            serverData.configChars.forEach((c, i) => {
-                simList.innerHTML += `<div class="char-card" onclick="window.joinSimMode(${i})"><b style="color:${c.color}">${c.name}</b><br><small>${c.desc}</small></div>`;
-            });
-        }
-
+        // 學生介面控制
         if(myRole === 'student') {
             const p = serverData.players[myUID];
             const hasMoved = p && p.lastMovedQ === serverData.q;
             const isPaused = serverData.status === 'paused';
+            
+            document.getElementById('move-group').style.display = isPaused ? "none" : "block";
+            document.getElementById('lock-msg').style.display = isPaused ? "block" : "none";
             document.getElementById('move-btns').style.display = hasMoved ? "none" : "flex";
             document.getElementById('btn-undo').style.display = (hasMoved && !isPaused) ? "inline-block" : "none";
-            document.getElementById('move-msg').innerText = isPaused ? "⏸ 命運凍結中" : (hasMoved ? "✅ 已完成抉擇" : (d.isRevealed ? "⚡ 請點擊按鈕做出選擇" : "💭 聽導師口述題目..."));
+            document.getElementById('move-status-msg').innerText = isPaused ? "⏸ 命運凍結中" : (hasMoved ? "✅ 已完成本題抉擇" : (d.isRevealed ? "⚡ 請點擊做出您的選擇" : "💭 聽取導師口述情境中..."));
         }
     });
 
@@ -298,23 +303,23 @@
     let localX = {};
     function render() {
         ctx.clearRect(0,0,1000,420);
-        const sx = 150; const sd = 20;
-        ctx.strokeStyle = "rgba(255,255,255,0.1)"; 
-        for(let i=0; i<12; i++) ctx.strokeRect(20, 50+(i*30), 960, 30);
-        ctx.strokeStyle = "#00ff00"; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.moveTo(sx, 40); ctx.lineTo(sx, 400); ctx.stroke();
-        ctx.fillStyle = "#00ff00"; ctx.font = "bold 14px sans-serif"; ctx.fillText("理想起跑線", sx-35, 35);
+        const sx = 150; const sd = 22;
+        ctx.strokeStyle = "rgba(255,255,255,0.05)"; 
+        for(let i=0; i<15; i++) ctx.strokeRect(20, 50+(i*25), 960, 25);
+        ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(sx, 40); ctx.lineTo(sx, 410); ctx.stroke();
+        ctx.fillStyle = "#22c55e"; ctx.font = "bold 14px sans-serif"; ctx.fillText("理想起跑線", sx-35, 30);
 
         Object.keys(serverData.players).forEach((uid, i) => {
             const p = serverData.players[uid];
             if(!localX[uid]) localX[uid] = sx;
             localX[uid] += (sx + (p.pos*sd) - localX[uid]) * 0.1;
-            const y = 65 + (i*30);
-            ctx.beginPath(); ctx.arc(localX[uid], y, 12, 0, Math.PI*2);
+            const y = 65 + (i*25);
+            ctx.beginPath(); ctx.arc(localX[uid], y, 10, 0, Math.PI*2);
             ctx.fillStyle = p.color; ctx.fill();
             if(uid === myUID) { ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke(); }
-            ctx.fillStyle="#fff"; ctx.textAlign="left"; ctx.font="11px sans-serif";
-            ctx.fillText(p.name, localX[uid]+18, y+4);
+            ctx.fillStyle="#cbd5e1"; ctx.textAlign="left"; ctx.font="10px sans-serif";
+            ctx.fillText(p.name, localX[uid]+15, y+4);
         });
         requestAnimationFrame(render);
     }
