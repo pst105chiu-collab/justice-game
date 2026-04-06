@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平全不平權？— 社會生存模擬器</title>
+    <style>
+        :root { 
+            --dark: #1a1a1a; --gold: #ffd700; --blue: #3182ce; 
+            --red: #e53e3e; --green: #38a169; --gray: #718096;
+        }
+        body { 
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; 
+            background: #121212; color: #eee; margin: 0; 
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; 
+        }
+        .container { 
+            background: #1e1e1e; width: 95%; max-width: 1100px; border-radius: 24px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5); margin: 20px; padding: 30px; 
+            position: relative; border: 1px solid #333;
+        }
+        
+        /* 諷刺風格頁面 */
+        .page { display: none; flex-direction: column; align-items: center; width: 100%; animation: slideUp 0.4s ease-out; }
+        .page.active { display: flex; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        h1 { font-size: 3rem; margin-bottom: 5px; color: var(--gold); text-shadow: 2px 2px 0px #000; }
+        .slogan { font-style: italic; color: var(--gray); margin-bottom: 30px; }
+
+        /* 按鈕視覺 */
+        .btn { 
+            padding: 15px 30px; border-radius: 14px; border: none; font-weight: 900; 
+            cursor: pointer; transition: 0.3s; font-size: 18px; color: white; margin: 10px;
+            box-shadow: 0 6px 0px rgba(0,0,0,0.2); text-transform: uppercase;
+        }
+        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0px rgba(0,0,0,0.2); }
+        .btn-admin { background: #444; font-size: 14px; opacity: 0.7; }
+        .btn-mode-1 { background: var(--blue); width: 320px; height: 120px; font-size: 22px; border: 3px solid #fff; }
+        .btn-mode-2 { background: var(--green); width: 320px; height: 120px; font-size: 22px; border: 3px solid #fff; }
+        .btn-action { width: 160px; height: 90px; font-size: 24px; border: 4px solid #fff; }
+
+        /* 角色卡片美化 */
+        .char-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px; width: 100%; margin-top: 20px; }
+        .char-card { 
+            background: #2d2d2d; border: 2px solid #444; padding: 20px; border-radius: 18px; 
+            cursor: pointer; transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .char-card:hover { border-color: var(--gold); background: #3d3d3d; transform: scale(1.05); }
+        .char-card b { font-size: 1.2rem; display: block; margin-top: 10px; }
+        .char-story-preview { font-size: 11px; color: #aaa; margin-top: 8px; line-height: 1.4; text-align: left; }
+
+        /* 教師主控台 */
+        .teacher-panel { background: #2d3748; border: 3px solid var(--gold); padding: 25px; border-radius: 20px; width: 100%; box-sizing: border-box; }
+        .status-pill { padding: 6px 20px; border-radius: 30px; font-size: 14px; font-weight: bold; margin-bottom: 15px; display: inline-block; border: 2px solid #000; }
+
+        canvas { background: #fff; border-radius: 12px; width: 100%; margin: 20px 0; box-shadow: inset 0 0 20px rgba(0,0,0,0.2); }
+        input { background: #333; color: #fff; padding: 15px; margin: 10px; border: 2px solid #444; border-radius: 10px; width: 280px; font-size: 18px; text-align: center; }
+        
+        /* 諷刺小標籤 */
+        .joke-label { position: absolute; top: -10px; right: 10px; background: var(--red); color: white; padding: 2px 10px; font-size: 12px; border-radius: 5px; transform: rotate(5deg); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="page-home" class="page active">
+        <h1>平全不平權？</h1>
+        <div class="slogan">「每個人都有機會，只是有些人的機會比較貴。」</div>
+        
+        <div style="display:flex; flex-wrap: wrap; justify-content:center; gap: 20px;">
+            <button class="btn btn-mode-1" onclick="showPage('page-sim-select')">
+                🎭 投胎模擬器<br>
+                <span style="font-size:12px; font-weight:normal;">(抽一個大人的劇本試試看)</span>
+            </button>
+            <button class="btn btn-mode-2" onclick="joinRealMode()">
+                🏗️ 真實生存大亂鬥<br>
+                <span style="font-size:12px; font-weight:normal;">(用自己的身分挑戰現實)</span>
+            </button>
+        </div>
+        <button class="btn btn-admin" style="margin-top: 40px;" onclick="showPage('page-login')">🔑 進入命運後台 (管理員)</button>
+    </div>
+
+    <div id="page-login" class="page">
+        <h2>命運規劃師登入</h2>
+        <p>請輸入權限密碼，開始分配不平等的種子。</p>
+        <input type="text" id="admin-user" placeholder="帳號">
+        <input type="password" id="admin-pass" placeholder="密碼">
+        <div>
+            <button class="btn" style="background:var(--blue)" onclick="verifyLogin()">開始主宰</button>
+            <button class="btn" style="background:#555" onclick="showPage('page-home')">算了，我不想管</button>
+        </div>
+    </div>
+
+    <div id="page-sim-select" class="page">
+        <h2>選擇你的「出生禮包」</h2>
+        <div class="char-grid" id="sim-char-list"></div>
+        <button class="btn" style="background:#555; margin-top:30px" onclick="showPage('page-home')">回首頁重新思考人生</button>
+    </div>
+
+    <div id="page-game" class="page">
+        <div style="display:flex; justify-content: space-between; width:100%; align-items:flex-end;">
+            <div>
+                <div id="game-info" style="font-size:36px; font-weight:900;">關卡：<span id="q-num">0</span></div>
+                <div style="font-size: 14px; color: var(--gray);">社會期待值穩定增長中...</div>
+            </div>
+            <div id="player-tag" style="font-weight:bold; padding: 10px 20px; border-radius:12px; font-size: 18px; border: 2px solid #fff;">正在初始化身分...</div>
+        </div>
+        
+        <canvas id="mainCanvas" width="1000" height="400"></canvas>
+
+        <div id="teacher-controls" class="teacher-panel" style="display:none">
+            <div id="pause-status" class="status-pill">命運運行中...</div>
+            <div style="display:flex; gap:15px;">
+                <button class="btn" style="background:var(--gold); color: #000; flex:2" onclick="dbNextQ()">投放下一道社會難題 ➔</button>
+                <button id="pause-btn" class="btn" style="background:#ed8936; flex:1" onclick="dbTogglePause()">⏸ 凍結時間</button>
+                <button class="btn" style="background:var(--red); flex:1" onclick="dbReset()">🧨 砍掉重練</button>
+            </div>
+        </div>
+
+        <div id="student-controls" class="control-section" style="margin-top:20px; text-align:center;">
+            <p id="lock-msg" style="color:var(--red); font-size: 20px; font-weight:900; background: #fff; padding: 10px; border-radius: 10px; display:none;">⚠️ 命運已凍結！請專心聽導師訓話 ⚠️</p>
+            <div id="move-btns">
+                <button class="btn btn-action" style="background:var(--red)" onclick="dbMove(-1)">◀ 命運受阻</button>
+                <button class="btn btn-action" style="background:var(--green)" onclick="dbMove(1)">努力前進 ▶</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+    // 沿用您的 Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDyO58BVHMHr7hJIIchVDlq5uD91D5W0o",
+      authDomain: "equity-game-a26fc.firebaseapp.com",
+      databaseURL: "https://equity-game-a26fc-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "equity-game-a26fc",
+      storageBucket: "equity-game-a26fc.firebasestorage.app",
+      messagingSenderId: "247557188175",
+      appId: "1:247557188175:web:84e3232995e337a273983a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const gameRef = ref(db, 'equity-game-v3'); // 使用新版路徑避免衝突
+
+    // 內建角色背景
+    const simCharacters = [
+        { name: "達嗨 (Dahai)", color: "#3182ce", desc: "清晨 5:30 醒來，錯過唯一公車就要走 40 分鐘山路..." },
+        { name: "維恩 (Wayne)", color: "#ecc94b", desc: "200 坪豪宅中醒來，保姆車內有 Wi-Fi 讓你滑 iPad..." },
+        { name: "小明 (Ming)", color: "#f687b3", desc: "大多數人的縮影，蛋餅、走路、安親班。平凡但也無憂..." },
+        { name: "小晴 (Sunny)", color: "#f6ad55", desc: "小大人。幫奶奶換尿布、煮稀飯後才匆匆跑去教室..." },
+        { name: "阿諾 (Arno)", color: "#9f7aea", desc: "罕病生。看著大家在體育場奔跑，外面到處是輪椅過不去的牆..." }
+    ];
+
+    let myRole = null;
+    let myUID = null;
+    let myCharName = "";
+    let serverData = { q: 0, status: 'running', players: {} };
+
+    window.showPage = (id) => {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    };
+
+    window.verifyLogin = () => {
+        if(document.getElementById('admin-user').value === 'admin' && document.getElementById('admin-pass').value === '2803') {
+            myRole = 'teacher';
+            document.getElementById('teacher-controls').style.display = 'block';
+            document.getElementById('student-controls').style.display = 'none';
+            document.getElementById('player-tag').innerText = "👨‍🏫 命運掌控者：教師";
+            document.getElementById('player-tag').style.background = "#ffd700";
+            document.getElementById('player-tag').style.color = "#000";
+            showPage('page-game');
+        } else { alert('帳號或密碼不正確，你無法控制社會。'); }
+    };
+
+    const charListDiv = document.getElementById('sim-char-list');
+    simCharacters.forEach((c, idx) => {
+        const card = document.createElement('div');
+        card.className = 'char-card';
+        card.innerHTML = `
+            <div class="joke-label">特權+??</div>
+            <div style="width:30px;height:30px;background:${c.color};border-radius:50%;margin:0 auto;"></div>
+            <b>${c.name}</b>
+            <div class="char-story-preview">${c.desc}</div>
+        `;
+        card.onclick = () => joinSimMode(idx);
+        charListDiv.appendChild(card);
+    });
+
+    window.joinSimMode = (idx) => {
+        myRole = 'student';
+        myUID = "sim_" + idx;
+        myCharName = simCharacters[idx].name;
+        updateUIForStudent(simCharacters[idx].color, myCharName);
+        update(ref(db, `equity-game-v3/players/${myUID}`), { name: myCharName, color: simCharacters[idx].color, pos: 0 });
+        showPage('page-game');
+    };
+
+    window.joinRealMode = () => {
+        myRole = 'student';
+        myUID = "real_" + Math.random().toString(36).substr(2, 6);
+        onValue(ref(db, 'equity-game-v3/players'), (snap) => {
+            if(!myCharName) {
+                const count = snap.exists() ? Object.keys(snap.val()).filter(k => k.startsWith('real_')).length + 1 : 1;
+                myCharName = "Player " + count;
+                const rCol = "hsl(" + (Math.random() * 360) + ", 70%, 50%)";
+                updateUIForStudent(rCol, myCharName);
+                update(ref(db, `equity-game-v3/players/${myUID}`), { name: myCharName, color: rCol, pos: 0 });
+                showPage('page-game');
+            }
+        }, { onlyOnce: true });
+    };
+
+    function updateUIForStudent(color, name) {
+        const tag = document.getElementById('player-tag');
+        tag.innerText = "你是：" + name;
+        tag.style.background = color;
+        tag.style.color = "#fff";
+    }
+
+    window.dbNextQ = () => set(ref(db, 'equity-game-v3/q'), serverData.q + 1);
+    window.dbTogglePause = () => set(ref(db, 'equity-game-v3/status'), serverData.status === 'running' ? 'paused' : 'running');
+    window.dbMove = (dir) => {
+        if(serverData.status === 'paused') return;
+        const cp = (serverData.players[myUID] && serverData.players[myUID].pos) || 0;
+        set(ref(db, `equity-game-v3/players/${myUID}/pos`), Math.max(0, cp + dir));
+    };
+    window.dbReset = () => {
+        if(confirm("確定重置社會？所有人的努力將歸零！")) {
+            set(gameRef, { q: 0, status: 'running', players: {} });
+            location.reload();
+        }
+    };
+
+    onValue(gameRef, (snap) => {
+        const d = snap.val();
+        if(d) {
+            serverData = d;
+            serverData.players = d.players || {};
+            serverData.q = d.q || 0;
+            document.getElementById('q-num').innerText = serverData.q;
+            
+            const isP = serverData.status === 'paused';
+            document.getElementById('pause-status').innerText = isP ? "⚠️ 社會停滯中" : "進行中...";
+            document.getElementById('pause-status').style.background = isP ? "#e53e3e" : "#38a169";
+            document.getElementById('pause-btn').innerText = isP ? "▶ 恢復命運" : "⏸ 凍結命運";
+            
+            if(myRole === 'student') {
+                document.getElementById('move-btns').style.display = isP ? "none" : "block";
+                document.getElementById('lock-msg').style.display = isP ? "block" : "none";
+            }
+        }
+    });
+
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    let localX = {};
+
+    function render() {
+        ctx.clearRect(0,0,1000,400);
+        const sx = 120; const sd = 20;
+
+        // 起點與終點線
+        ctx.strokeStyle = "#ddd"; ctx.lineWidth = 2;
+        ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(sx + (40 * sd), 40); ctx.lineTo(sx + (40 * sd), 380); ctx.stroke();
+        ctx.setLineDash([]); ctx.fillStyle = "#888"; ctx.font = "bold 14px sans-serif";
+        ctx.fillText("這就是「成功」🏁", sx + (40 * sd) - 30, 25);
+
+        const ids = Object.keys(serverData.players);
+        ids.forEach((uid, i) => {
+            const p = serverData.players[uid];
+            if(!localX[uid]) localX[uid] =
